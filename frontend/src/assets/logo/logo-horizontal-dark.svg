@@ -1,0 +1,47 @@
+<svg width="340" height="120" viewBox="0 0 340 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pin-grad-dark" x1="50" y1="31" x2="50" y2="59" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stopColor="#2DD4BF" />
+      <stop offset="100%" stopColor="#4F9CFB" />
+    </linearGradient>
+    <linearGradient id="mt-left-dark" x1="38" y1="67" x2="15" y2="106" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stopColor="#2563EB" />
+      <stop offset="100%" stopColor="#2DD4BF" />
+    </linearGradient>
+    <linearGradient id="mt-right-dark" x1="62" y1="60" x2="85" y2="106" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stopColor="#1E3A8A" />
+      <stop offset="100%" stopColor="#4F9CFB" />
+    </linearGradient>
+    <linearGradient id="sync-text-grad-dark" x1="205" y1="40" x2="300" y2="85" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stopColor="#2DD4BF" />
+      <stop offset="100%" stopColor="#4F9CFB" />
+    </linearGradient>
+    <clipPath id="suitcase-clip-dark">
+      <rect x="17.75" y="25.75" width="64.5" height="76.5" rx="11.25" />
+    </clipPath>
+  </defs>
+  
+  <!-- Icon Group -->
+  <g transform="translate(0, 0)">
+    <rect x="36" y="10" width="28" height="15" rx="5" stroke="#4F9CFB" strokeWidth="5.5" strokeLinejoin="round" fill="none" />
+    <rect x="30" y="103" width="8" height="8" rx="4" fill="#4F9CFB" />
+    <rect x="62" y="103" width="8" height="8" rx="4" fill="#4F9CFB" />
+    <rect x="15" y="23" width="70" height="82" rx="14" stroke="#4F9CFB" strokeWidth="5.5" strokeLinejoin="round" fill="#111827" />
+    <g clipPath="url(#suitcase-clip-dark)">
+      <path d="M 10 106 L 38 67 L 66 106 Z" fill="url(#mt-left-dark)" />
+      <path d="M 34 106 L 62 60 L 90 106 Z" fill="url(#mt-right-dark)" opacity="0.9" />
+      <path d="M 10 106 L 15 88 L 28 80 L 42 88 L 56 75 L 70 86 L 85 80 L 90 106 Z" fill="#1E2B5A" />
+      <path d="M 56 77 Q 59 90 78 106" stroke="#2DD4BF" strokeWidth="3" strokeLinecap="round" fill="none" />
+    </g>
+    <g>
+      <path d="M 50 31 C 44.5 31, 40 35.5, 40 41 C 40 49, 50 59, 50 59 C 50 59, 60 49, 60 41 C 60 35.5, 55.5 31, 50 31 Z" fill="url(#pin-grad-dark)" />
+      <circle cx="50" cy="41" r="3.5" fill="#FFFFFF" />
+    </g>
+  </g>
+
+  <!-- Typography Group -->
+  <text x="110" y="76" fontFamily="system-ui, -apple-system, sans-serif" fontSize="52" fontWeight="700" letterSpacing="-0.03em">
+    <tspan fill="#FFFFFF">Trip</tspan>
+    <tspan fill="url(#sync-text-grad-dark)">Sync</tspan>
+  </text>
+</svg>

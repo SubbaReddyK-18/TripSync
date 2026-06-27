@@ -1,0 +1,566 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "TripSync API",
+    "version": "1.0.0",
+    "description": "API endpoints for TripSync - Trip Expense Splitter & Travel Planner backend."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api/v1",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter your JWT token in the format: Bearer <token>"
+      }
+    },
+    "schemas": {
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["full_name", "username", "email", "password"],
+        "properties": {
+          "full_name": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "username": { "type": "string", "pattern": "^[a-zA-Z0-9_]+$", "minLength": 2, "maxLength": 30 },
+          "email": { "type": "string", "format": "email", "maxLength": 200 },
+          "password": { "type": "string", "minLength": 8, "maxLength": 128 },
+          "dob": { "type": "string", "format": "date", "nullable": true },
+          "role": { "type": "string", "default": "user" }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "user": { "type": "object" },
+              "access_token": { "type": "string" },
+              "refresh_token": { "type": "string" }
+            }
+          },
+          "message": { "type": "string" }
+        }
+      },
+      "CreateTripRequest": {
+        "type": "object",
+        "required": ["title", "destination", "start_date", "end_date"],
+        "properties": {
+          "title": { "type": "string", "minLength": 2, "maxLength": 100 },
+          "description": { "type": "string", "maxLength": 1000 },
+          "destination": { "type": "string", "maxLength": 200 },
+          "start_date": { "type": "string", "format": "date" },
+          "end_date": { "type": "string", "format": "date" },
+          "currency": { "type": "string", "maxLength": 3, "default": "INR" }
+        }
+      },
+      "CreateExpenseRequest": {
+        "type": "object",
+        "required": ["title", "amount", "date", "paid_by", "split_among"],
+        "properties": {
+          "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "amount": { "type": "integer", "minimum": 1, "description": "Amount in paise (e.g. 100000 for 1000.00 INR)" },
+          "currency": { "type": "string", "maxLength": 3, "default": "INR" },
+          "category": { "type": "string", "enum": ["food", "transport", "accommodation", "activity", "shopping", "medical", "other"], "default": "other" },
+          "date": { "type": "string", "format": "date" },
+          "paid_by": { "type": "string", "description": "User ID of the member who paid" },
+          "split_type": { "type": "string", "enum": ["equal", "custom"], "default": "equal" },
+          "split_among": { "type": "array", "items": { "type": "string" } },
+          "splits": { "type": "array", "items": { "type": "object" }, "description": "Used only for custom splits" },
+          "notes": { "type": "string", "maxLength": 1000 },
+          "receipts": { "type": "array", "items": { "type": "object" } }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Account created successfully" },
+          "400": { "description": "Invalid payload/validation error" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "User Login",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized/Invalid credentials" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Logout user and invalidate token",
+        "responses": {
+          "200": { "description": "Logged out successfully" }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "summary": "Refresh access token",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["refresh_token"],
+                "properties": {
+                  "refresh_token": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Access token refreshed" },
+          "401": { "description": "Invalid/Expired refresh token" }
+        }
+      }
+    },
+    "/auth/verify-otp": {
+      "post": {
+        "summary": "Verify email OTP",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "otp"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "otp": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OTP verified successfully" },
+          "400": { "description": "Invalid/Expired OTP" }
+        }
+      }
+    },
+    "/auth/resend-otp": {
+      "post": {
+        "summary": "Resend email verification OTP",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OTP resent" }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "summary": "Get logged-in user profile",
+        "responses": {
+          "200": { "description": "Profile data retrieved" }
+        }
+      },
+      "patch": {
+        "summary": "Update logged-in user profile",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "full_name": { "type": "string" },
+                  "username": { "type": "string" },
+                  "bio": { "type": "string" },
+                  "profile_photo_url": { "type": "string" },
+                  "profile_photo_public_id": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Profile updated successfully" }
+        }
+      }
+    },
+    "/users/search": {
+      "get": {
+        "summary": "Search users for trip invitation",
+        "parameters": [
+          { "name": "q", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Query term" }
+        ],
+        "responses": {
+          "200": { "description": "Search results returned" }
+        }
+      }
+    },
+    "/trips": {
+      "post": {
+        "summary": "Create a new trip",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTripRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Trip created" }
+        }
+      },
+      "get": {
+        "summary": "List all trips user is part of",
+        "responses": {
+          "200": { "description": "List of trips" }
+        }
+      }
+    },
+    "/trips/{trip_id}": {
+      "get": {
+        "summary": "Get trip details",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Trip details" }
+        }
+      },
+      "patch": {
+        "summary": "Update trip details",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "description": { "type": "string" },
+                  "destination": { "type": "string" },
+                  "start_date": { "type": "string", "format": "date" },
+                  "end_date": { "type": "string", "format": "date" },
+                  "currency": { "type": "string" },
+                  "status": { "type": "string", "enum": ["planning", "ongoing", "completed", "cancelled"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Trip updated" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a trip",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Trip deleted" }
+        }
+      }
+    },
+    "/trips/{trip_id}/join": {
+      "post": {
+        "summary": "Join a trip by ID",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Joined successfully" }
+        }
+      }
+    },
+    "/trips/join-by-code": {
+      "post": {
+        "summary": "Join a trip using an invite code",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["invite_code"],
+                "properties": {
+                  "invite_code": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Joined successfully" }
+        }
+      }
+    },
+    "/trips/{trip_id}/members": {
+      "get": {
+        "summary": "Get all members of a trip",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "List of members" }
+        }
+      }
+    },
+    "/trips/{trip_id}/expenses": {
+      "post": {
+        "summary": "Add a new expense",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExpenseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Expense created" }
+        }
+      },
+      "get": {
+        "summary": "Get all expenses of a trip",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "category", "in": "query", "schema": { "type": "string" } },
+          { "name": "paid_by", "in": "query", "schema": { "type": "string" } },
+          { "name": "date_from", "in": "query", "schema": { "type": "string", "format": "date" } },
+          { "name": "date_to", "in": "query", "schema": { "type": "string", "format": "date" } }
+        ],
+        "responses": {
+          "200": { "description": "List of expenses" }
+        }
+      }
+    },
+    "/trips/{trip_id}/expenses/{expense_id}": {
+      "get": {
+        "summary": "Get an expense by ID",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "expense_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Expense details" }
+        }
+      },
+      "delete": {
+        "summary": "Delete an expense",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "expense_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Expense deleted" }
+        }
+      }
+    },
+    "/trips/{trip_id}/settlements": {
+      "get": {
+        "summary": "Get trip settlements list",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "List of settlements" }
+        }
+      }
+    },
+    "/trips/{trip_id}/settlements/{settlement_id}/pay": {
+      "post": {
+        "summary": "Mark a settlement as paid",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "settlement_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "payment_method": { "type": "string" },
+                  "payment_note": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Settlement marked as paid" }
+        }
+      }
+    },
+    "/trips/{trip_id}/settlements/{settlement_id}/confirm": {
+      "post": {
+        "summary": "Confirm a settlement payment",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "settlement_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Settlement payment confirmed" }
+        }
+      }
+    },
+    "/trips/{trip_id}/budget": {
+      "post": {
+        "summary": "Create trip budget",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["total_limit"],
+                "properties": {
+                  "total_limit": { "type": "integer" },
+                  "category_limits": { "type": "object" },
+                  "currency": { "type": "string", "default": "INR" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Budget created" }
+        }
+      },
+      "get": {
+        "summary": "Get trip budget",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Budget details" }
+        }
+      }
+    },
+    "/trips/{trip_id}/budget/analytics": {
+      "get": {
+        "summary": "Get budget analytics",
+        "parameters": [
+          { "name": "trip_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Budget analytics" }
+        }
+      }
+    },
+    "/upload": {
+      "post": {
+        "summary": "Upload a file (image or video)",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "File uploaded successfully" }
+        }
+      }
+    },
+    "/dashboard/overview": {
+      "get": {
+        "summary": "Get dashboard financial overview stats",
+        "parameters": [
+          { "name": "range", "in": "query", "schema": { "type": "string", "default": "month" } }
+        ],
+        "responses": {
+          "200": { "description": "Overview data" }
+        }
+      }
+    }
+  }
+}

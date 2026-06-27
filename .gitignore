@@ -1,0 +1,33 @@
+# IDEs and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Node (frontend)
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Python (backend)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+instance/
+
+# Local env files
+.env
+.env*.local
+
+# Uploaded files (dev/test)
+backend/static/uploads/

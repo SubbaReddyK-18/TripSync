@@ -31,12 +31,6 @@ class BaseConfig:
 
     SOCKETIO_ASYNC_MODE = os.environ.get("SOCKETIO_ASYNC_MODE", "threading")
 
-    # SMTP (keep these)
-    SMTP_HOST = os.environ.get("SMTP_HOST", "")
-    SMTP_PORT = int(os.environ.get("SMTP_PORT", 587))
-    SMTP_USER = os.environ.get("SMTP_USER", "")
-    SMTP_PASS = os.environ.get("SMTP_PASS", "")
-
     # Mail
     MAIL_FROM = os.environ.get("MAIL_FROM", "noreply@tripsync.app")
 

@@ -39,7 +39,7 @@ def register():
     from services.auth_service import store_pending_registration
     from services.email_service import send_otp_email
 
-    otp, smtp_configured = store_pending_registration(
+    otp = store_pending_registration(
         data["full_name"],
         data["username"],
         data["email"],
@@ -48,8 +48,7 @@ def register():
         role=data.get("role", "user")
     )
 
-    if smtp_configured:
-        send_otp_email(data["email"], otp)
+    send_otp_email(data["email"], otp)
 
     return {
         "success": True,
@@ -164,14 +163,6 @@ def resend_otp():
     pending = db["pending_registrations"].find_one({"email": email})
     if not pending:
         return {"success": False, "error": {"code": "NOT_FOUND", "message": "No pending registration found with this email"}}, 404
-
-    smtp_configured = bool(
-        current_app.config.get("SMTP_HOST")
-        and current_app.config.get("SMTP_USER")
-        and current_app.config.get("SMTP_PASS")
-    )
-    if not smtp_configured:
-        return {"success": False, "error": {"code": "SMTP_NOT_CONFIGURED", "message": "Email service is not configured. Contact the administrator."}}, 503
 
     otp = str(random.randint(100000, 999999))
     db["pending_registrations"].update_one(

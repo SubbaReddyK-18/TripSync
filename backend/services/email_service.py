@@ -7,8 +7,13 @@ logger = logging.getLogger(__name__)
 
 
 def send_email(to: str, subject: str, body: str) -> bool:
+    api_key = current_app.config.get("BREVO_API_KEY", "")
+    if not api_key:
+        logger.warning("BREVO_API_KEY not configured — skipping email to %s", to)
+        return False
+
     configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key["api-key"] = current_app.config.get("BREVO_API_KEY", "")
+    configuration.api_key["api-key"] = api_key
 
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
         sib_api_v3_sdk.ApiClient(configuration)

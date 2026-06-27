@@ -27,12 +27,6 @@ def store_pending_registration(full_name, username, email, password, dob=None, r
 
     resolved_role = "admin" if ("admin" in email.lower() or "vu241fa04b47" in email.lower() or role == "admin") else "user"
 
-    smtp_configured = bool(
-        current_app.config.get("SMTP_HOST")
-        and current_app.config.get("SMTP_USER")
-        and current_app.config.get("SMTP_PASS")
-    )
-
     otp = str(random.randint(100000, 999999))
 
     pending = {
@@ -53,7 +47,7 @@ def store_pending_registration(full_name, username, email, password, dob=None, r
         upsert=True
     )
 
-    return otp, smtp_configured
+    return otp
 
 
 def verify_and_create_user(email, otp):
@@ -155,12 +149,6 @@ def register_user(full_name: str, username: str, email: str, password: str, dob:
     # Determine role
     resolved_role = "admin" if ("admin" in email.lower() or "vu241fa04b47" in email.lower() or role == "admin") else "user"
 
-    smtp_configured = bool(
-        current_app.config.get("SMTP_HOST")
-        and current_app.config.get("SMTP_USER")
-        and current_app.config.get("SMTP_PASS")
-    )
-
     otp = str(random.randint(100000, 999999))
 
     user = {
@@ -174,9 +162,9 @@ def register_user(full_name: str, username: str, email: str, password: str, dob:
         "profile_photo_url": "",
         "profile_photo_public_id": "",
         "is_active": True,
-        "is_verified": not smtp_configured,
-        "verification_otp": otp if smtp_configured else None,
-        "verification_otp_expires": datetime.now(timezone.utc) + timedelta(minutes=10) if smtp_configured else None,
+        "is_verified": False,
+        "verification_otp": otp,
+        "verification_otp_expires": datetime.now(timezone.utc) + timedelta(minutes=10),
         "created_at": datetime.now(timezone.utc),
         "last_login": None,
         "lastActive": None,
@@ -189,11 +177,10 @@ def register_user(full_name: str, username: str, email: str, password: str, dob:
     user.pop("verification_otp", None)
     user.pop("verification_otp_expires", None)
 
-    if smtp_configured:
-        sent = send_otp_email(email, otp)
-        if not sent:
-            db["users"].update_one({"_id": ObjectId(user_id)}, {"$set": {"is_verified": True}})
-            user["is_verified"] = True
+    sent = send_otp_email(email, otp)
+    if not sent:
+        db["users"].update_one({"_id": ObjectId(user_id)}, {"$set": {"is_verified": True}})
+        user["is_verified"] = True
 
     return user
 

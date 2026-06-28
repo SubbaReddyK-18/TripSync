@@ -26,16 +26,19 @@ def require_auth(f):
             return {"success": False, "error": {"code": "INVALID_TOKEN", "message": "Invalid access token"}}, 401
 
         db = get_db()
+
         blacklisted = db["token_blacklist"].find_one({"jti": payload["jti"]})
         if blacklisted:
             return {"success": False, "error": {"code": "TOKEN_BLACKLISTED", "message": "Token has been revoked"}}, 401
 
-        user = db["users"].find_one({"_id": ObjectId(payload["sub"])})
+        user = db["users"].find_one(
+            {"_id": ObjectId(payload["sub"])},
+            {"password_hash": 0, "refresh_tokens": 0}
+        )
         if not user:
             return {"success": False, "error": {"code": "USER_NOT_FOUND", "message": "User not found"}}, 401
 
         user["_id"] = str(user["_id"])
-        user.pop("password_hash", None)
         user["is_verified"] = user.get("is_verified", False)
         g.current_user = user
         g.token_jti = payload["jti"]
@@ -57,10 +60,12 @@ def optional_auth(f):
                     algorithms=["HS256"],
                 )
                 db = get_db()
-                user = db["users"].find_one({"_id": ObjectId(payload["sub"])})
+                user = db["users"].find_one(
+                    {"_id": ObjectId(payload["sub"])},
+                    {"password_hash": 0, "refresh_tokens": 0}
+                )
                 if user:
                     user["_id"] = str(user["_id"])
-                    user.pop("password_hash", None)
                     user["is_verified"] = user.get("is_verified", False)
                     g.current_user = user
                     g.token_jti = payload["jti"]

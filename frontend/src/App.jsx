@@ -12,7 +12,6 @@ import TripOverviewPage from './pages/TripOverviewPage'
 import ExpensesPage from './pages/ExpensesPage'
 import SettlementsPage from './pages/SettlementsPage'
 import BudgetPage from './pages/BudgetPage'
-import MemoriesPage from './pages/MemoriesPage'
 import ItineraryPage from './pages/ItineraryPage'
 import PlacesPage from './pages/PlacesPage'
 import SettingsPage from './pages/SettingsPage'
@@ -333,7 +332,6 @@ export default function App() {
           <Route path="/trips/:tripId/expenses" element={<ExpensesPage />} />
           <Route path="/trips/:tripId/settlements" element={<ModuleGuard moduleKey="enableSettlements"><SettlementsPage /></ModuleGuard>} />
           <Route path="/trips/:tripId/budget" element={<BudgetPage />} />
-          <Route path="/trips/:tripId/memories" element={<ModuleGuard moduleKey="enableMemories"><MemoriesPage /></ModuleGuard>} />
           <Route path="/trips/:tripId/itinerary" element={<ItineraryPage />} />
           <Route path="/trips/:tripId/places" element={<ModuleGuard moduleKey="enablePlaces"><PlacesPage /></ModuleGuard>} />
           <Route path="/settings" element={<SettingsPage />} />

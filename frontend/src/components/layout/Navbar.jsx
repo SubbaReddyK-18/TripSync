@@ -24,13 +24,13 @@ export default function Navbar() {
   const isAdminPage = location.pathname.startsWith('/admin')
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState({ trips: [], users: [], memories: [] })
+  const [searchResults, setSearchResults] = useState({ trips: [], users: [] })
   const [searching, setSearching] = useState(false)
   const { trips } = useTripStore()
 
   useEffect(() => {
-    if (!searchOpen) { setSearchQuery(''); setSearchResults({ trips: [], users: [], memories: [] }); return }
-    if (!searchQuery.trim()) { setSearchResults({ trips: [], users: [], memories: [] }); return }
+    if (!searchOpen) { setSearchQuery(''); setSearchResults({ trips: [], users: [] }); return }
+    if (!searchQuery.trim()) { setSearchResults({ trips: [], users: [] }); return }
 
     const q = searchQuery.toLowerCase().trim()
     const timer = setTimeout(async () => {
@@ -40,7 +40,7 @@ export default function Navbar() {
       let users = []
       try { const { data } = await searchUsers(q); users = data.data?.users || [] } catch {}
 
-      setSearchResults({ trips: filteredTrips.slice(0, 5), users: users.slice(0, 5), memories: [] })
+      setSearchResults({ trips: filteredTrips.slice(0, 5), users: users.slice(0, 5) })
       setSearching(false)
     }, 200)
     return () => clearTimeout(timer)
@@ -58,7 +58,6 @@ export default function Navbar() {
     if (location.pathname.match(/\/trips\/([a-f0-9]+)\/expenses/)) return 'Expenses'
     if (location.pathname.match(/\/trips\/([a-f0-9]+)\/settlements/)) return 'Settlements'
     if (location.pathname.match(/\/trips\/([a-f0-9]+)\/budget/)) return 'Budget'
-    if (location.pathname.match(/\/trips\/([a-f0-9]+)\/memories/)) return 'Memories'
     if (location.pathname.match(/\/trips\/([a-f0-9]+)\/itinerary/)) return 'Itinerary'
     if (location.pathname.match(/\/trips\/([a-f0-9]+)\/places/)) return 'Places'
 
@@ -123,7 +122,7 @@ export default function Navbar() {
             <circle cx="11" cy="11" r="8" />
             <path d="M21 21l-4.35-4.35" />
           </svg>
-          <span className="font-medium">Search trips, users, memories...</span>
+          <span className="font-medium">Search trips, users...</span>
           <kbd className={`ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded border ${
             isDark ? 'text-slate-500 border-white/[0.08] bg-white/[0.03]' : 'text-slate-400 border-slate-200 bg-white/50'
           }`}>
@@ -208,7 +207,7 @@ export default function Navbar() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search trips, users, memories..."
+                placeholder="Search trips, users..."
                 autoFocus
                 className={`flex-1 bg-transparent text-sm outline-none ${
                   isDark ? 'text-white placeholder-slate-500' : 'text-slate-900 placeholder-slate-400'
@@ -224,7 +223,7 @@ export default function Navbar() {
               {!searchQuery.trim() ? (
                 <div className="px-5 py-8 text-center">
                   <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                    Type to search across all trips, users, and memories
+                    Type to search across all trips and users
                   </p>
                 </div>
               ) : searching ? (

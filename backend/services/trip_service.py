@@ -5,7 +5,6 @@ from bson.objectid import ObjectId
 from config.database import get_db
 from middleware.error_handler import AppError
 from services.activity_service import create_activity
-from services.notification_service import create_notification
 from services.audit_helper import log_and_audit, get_user_name
 
 
@@ -86,16 +85,33 @@ def get_user_trips(user_id: str) -> list:
     memberships = db["members"].find({"user_id": ObjectId(user_id), "status": "active"})
     trip_ids = [m["trip_id"] for m in memberships]
 
+    if not trip_ids:
+        return []
+
     trips = list(db["trips"].find({"_id": {"$in": trip_ids}}).sort("created_at", -1))
+
+    member_counts = {
+        str(r["_id"]): r["count"]
+        for r in db["members"].aggregate([
+            {"$match": {"trip_id": {"$in": trip_ids}, "status": "active"}},
+            {"$group": {"_id": "$trip_id", "count": {"$sum": 1}}}
+        ])
+    }
+
+    expense_counts = {
+        str(r["_id"]): r["count"]
+        for r in db["expenses"].aggregate([
+            {"$match": {"trip_id": {"$in": trip_ids}}},
+            {"$group": {"_id": "$trip_id", "count": {"$sum": 1}}}
+        ])
+    }
+
     for t in trips:
         t["_id"] = str(t["_id"])
         t["admin_id"] = str(t["admin_id"])
         t["status"] = _compute_trip_status(t)
-
-        member_count = db["members"].count_documents({"trip_id": ObjectId(t["_id"]), "status": "active"})
-        t["member_count"] = member_count
-        expense_count = db["expenses"].count_documents({"trip_id": ObjectId(t["_id"])})
-        t["expense_count"] = expense_count
+        t["member_count"] = member_counts.get(t["_id"], 0)
+        t["expense_count"] = expense_counts.get(t["_id"], 0)
 
     return trips
 
@@ -164,7 +180,6 @@ def delete_trip(trip_id: str, user_id: str):
     db["settlements"].delete_many({"trip_id": ObjectId(trip_id)})
     db["budgets"].delete_many({"trip_id": ObjectId(trip_id)})
     db["itineraries"].delete_many({"trip_id": ObjectId(trip_id)})
-    db["memories"].delete_many({"trip_id": ObjectId(trip_id)})
     db["comments"].delete_many({"trip_id": ObjectId(trip_id)})
     db["activity_feed"].delete_many({"trip_id": ObjectId(trip_id)})
 
@@ -203,10 +218,22 @@ def join_trip(invite_code: str, user_id: str) -> dict:
     from services.audit_helper import update_last_active
     update_last_active(user_id)
 
-    members = list(db["members"].find({"trip_id": trip["_id"], "status": "active"}))
-    for m in members:
+    members_list = list(db["members"].find({"trip_id": trip["_id"], "status": "active"}))
+    notifications = []
+    for m in members_list:
         if str(m["user_id"]) != user_id:
-            create_notification(str(m["user_id"]), str(trip["_id"]), "member_joined", f"New member joined {trip['title']}")
+            notifications.append({
+                "recipient_id": m["user_id"],
+                "trip_id": trip["_id"],
+                "type": "member_joined",
+                "message": f"New member joined {trip['title']}",
+                "reference_id": None,
+                "reference_type": None,
+                "is_read": False,
+                "created_at": datetime.now(timezone.utc),
+            })
+    if notifications:
+        db["notifications"].insert_many(notifications)
 
     return trip
 
@@ -224,12 +251,23 @@ def regenerate_invite_code(trip_id: str, user_id: str) -> str:
 
 def get_trip_members(trip_id: str) -> list:
     db = get_db()
-    members = db["members"].find({"trip_id": ObjectId(trip_id), "status": "active"})
+    members = list(db["members"].find({"trip_id": ObjectId(trip_id), "status": "active"}))
+    if not members:
+        return []
+
+    user_ids = [m["user_id"] for m in members]
+    users = list(db["users"].find(
+        {"_id": {"$in": user_ids}},
+        {"password_hash": 0}
+    ))
+    user_map = {str(u["_id"]): u for u in users}
+
     results = []
     for m in members:
-        user = db["users"].find_one({"_id": m["user_id"]}, {"password_hash": 0})
+        uid = str(m["user_id"])
+        user = user_map.get(uid)
         if user:
-            user["_id"] = str(user["_id"])
+            user["_id"] = uid
             results.append({
                 "user": user,
                 "role": m["role"],

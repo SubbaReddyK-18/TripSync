@@ -14,7 +14,7 @@ def create_comment(trip_id: str, data: dict, user_id: str) -> dict:
     target_type = data["target_type"]
     target_id = data["target_id"]
 
-    collection_map = {"expense": "expenses", "memory": "memories", "itinerary_item": "itineraries"}
+    collection_map = {"expense": "expenses", "itinerary_item": "itineraries"}
     target_collection = collection_map[target_type]
     target = db[target_collection].find_one({"_id": ObjectId(target_id)})
     if not target:
@@ -57,6 +57,16 @@ def get_comments(trip_id: str, target_type: str, target_id: str) -> list:
         "target_id": ObjectId(target_id),
     }).sort("created_at", 1))
 
+    if not comments:
+        return []
+
+    author_ids = [ObjectId(c["author_id"]) for c in comments]
+    users = list(db["users"].find(
+        {"_id": {"$in": list(set(author_ids))}},
+        {"full_name": 1, "username": 1, "profile_photo_url": 1}
+    ))
+    user_map = {str(u["_id"]): u for u in users}
+
     results = []
     for c in comments:
         c["_id"] = str(c["_id"])
@@ -66,9 +76,9 @@ def get_comments(trip_id: str, target_type: str, target_id: str) -> list:
         c["parent_comment_id"] = str(c["parent_comment_id"]) if c.get("parent_comment_id") else None
         c["created_at"] = c["created_at"].replace(tzinfo=timezone.utc).isoformat() if isinstance(c["created_at"], datetime) else c["created_at"]
 
-        author = db["users"].find_one({"_id": ObjectId(c["author_id"])}, {"full_name": 1, "username": 1, "profile_photo_url": 1})
+        author = user_map.get(c["author_id"])
         c["author"] = {
-            "_id": str(author["_id"]),
+            "_id": author["_id"],
             "full_name": author["full_name"],
             "username": author["username"],
             "profile_photo_url": author.get("profile_photo_url", ""),

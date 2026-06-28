@@ -68,12 +68,6 @@ def _count_active_users(db, start, end=None):
     exp_users = db["expenses"].distinct("created_by", match)
     user_sets.append(set(exp_users))
 
-    mem_match = {"upload_date": {"$gte": start}}
-    if end:
-        mem_match["upload_date"]["$lt"] = end
-    mem_users = db["memories"].distinct("uploader_id", mem_match)
-    user_sets.append(set(mem_users))
-
     loc_users = db["locations"].distinct("added_by", match)
     user_sets.append(set(loc_users))
 
@@ -105,7 +99,6 @@ def get_platform_analytics(range_key="all"):
         total_trips = db["trips"].count_documents({})
         total_expenses = db["expenses"].count_documents({})
         total_expense_volume = _sum_expenses(db)
-        total_memories = db["memories"].count_documents({})
         total_places = db["locations"].count_documents({})
         total_settlements = db["settlements"].count_documents({})
         total_users = db["users"].count_documents({})
@@ -120,7 +113,6 @@ def get_platform_analytics(range_key="all"):
             "trips_created": {"value": total_trips, "growth": None},
             "expenses_logged": {"value": total_expenses, "growth": None},
             "expense_volume": {"value": total_expense_volume, "growth": None},
-            "memories_uploaded": {"value": total_memories, "growth": None},
             "places_added": {"value": total_places, "growth": None},
             "settlements_completed": {"value": total_settlements, "growth": None},
             "new_users": {"value": total_users, "growth": None},
@@ -140,9 +132,6 @@ def get_platform_analytics(range_key="all"):
 
     current_expense_volume = _sum_expenses(db, start)
     previous_expense_volume = _sum_expenses(db, prev_start, start)
-
-    current_memories = _count_with_date_filter(db, "memories", "upload_date", start)
-    previous_memories = _count_previous(db, "memories", "upload_date", prev_start, start)
 
     current_places = _count_with_date_filter(db, "locations", "created_at", start)
     previous_places = _count_previous(db, "locations", "created_at", prev_start, start)
@@ -165,7 +154,6 @@ def get_platform_analytics(range_key="all"):
         "trips_created": {"value": current_trips, "growth": growth(current_trips, previous_trips)},
         "expenses_logged": {"value": current_expenses, "growth": growth(current_expenses, previous_expenses)},
         "expense_volume": {"value": current_expense_volume, "growth": growth(current_expense_volume, previous_expense_volume)},
-        "memories_uploaded": {"value": current_memories, "growth": growth(current_memories, previous_memories)},
         "places_added": {"value": current_places, "growth": growth(current_places, previous_places)},
         "settlements_completed": {"value": current_settlements, "growth": growth(current_settlements, previous_settlements)},
         "new_users": {"value": current_users, "growth": growth(current_users, previous_users)},

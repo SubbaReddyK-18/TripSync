@@ -98,10 +98,17 @@ def get_balance_sheet(trip_id: str) -> list:
 
     net = _build_net_balances(trip_id, members)
 
+    user_ids = [m["user_id"] for m in members]
+    users = list(db["users"].find(
+        {"_id": {"$in": list(set(user_ids))}},
+        {"full_name": 1, "username": 1}
+    ))
+    user_map = {str(u["_id"]): u for u in users}
+
     balance_sheet = []
     for m in members:
         uid = str(m["user_id"])
-        user = db["users"].find_one({"_id": ObjectId(uid)}, {"full_name": 1, "username": 1})
+        user = user_map.get(uid)
         balance_sheet.append({
             "user_id": uid,
             "full_name": user["full_name"] if user else "Unknown",

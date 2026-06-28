@@ -5,7 +5,6 @@ from middleware.error_handler import AppError
 from services.splitting_service import compute_equal_splits, compute_custom_splits
 from services.activity_service import create_activity
 from services.member_service import is_member, require_editor
-from services.notification_service import create_notification
 from services.audit_helper import log_and_audit
 
 
@@ -76,9 +75,22 @@ def create_expense(trip_id: str, data: dict, user_id: str) -> dict:
     log_and_audit(user_id, "EXPENSE_ADDED", f"Added expense {data['title']}", trip_id)
 
     members = list(db["members"].find({"trip_id": ObjectId(trip_id), "status": "active"}))
+    notifications = []
+    now = datetime.now(timezone.utc)
     for m in members:
         if str(m["user_id"]) != user_id:
-            create_notification(str(m["user_id"]), trip_id, "expense_added", f"New expense '{data['title']}' added")
+            notifications.append({
+                "recipient_id": ObjectId(m["user_id"]),
+                "trip_id": ObjectId(trip_id),
+                "type": "expense_added",
+                "message": f"New expense '{data['title']}' added",
+                "reference_id": None,
+                "reference_type": None,
+                "is_read": False,
+                "created_at": now,
+            })
+    if notifications:
+        db["notifications"].insert_many(notifications)
 
     return expense
 

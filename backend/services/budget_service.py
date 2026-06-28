@@ -131,9 +131,15 @@ def get_budget_analytics(trip_id: str) -> dict:
     ]
     daily_spending = list(db["expenses"].aggregate(daily_pipeline))
 
-    expenses = list(db["expenses"].find({"trip_id": ObjectId(trip_id)}))
+    # Aggregate payer spending per user in one aggregation instead of Python loop
+    payer_pipeline = [
+        {"$match": {"trip_id": ObjectId(trip_id)}},
+        {"$project": {"paid_by": 1, "amount": 1}},
+    ]
+    all_expenses = list(db["expenses"].aggregate(payer_pipeline))
+
     user_spending_map = {}
-    for e in expenses:
+    for e in all_expenses:
         paid_by = e.get("paid_by")
         if isinstance(paid_by, dict):
             for uid_str, amt in paid_by.items():
@@ -149,16 +155,28 @@ def get_budget_analytics(trip_id: str) -> dict:
             user_spending_map[uid_str]["count"] += 1
 
     top_spenders = []
-    sorted_user_spending = sorted(user_spending_map.items(), key=lambda x: -x[1]["total"])
-    for uid_str, info in sorted_user_spending:
-        try:
-            user_obj_id = ObjectId(uid_str)
-        except Exception:
-            continue
-        user = db["users"].find_one({"_id": user_obj_id}, {"full_name": 1, "username": 1, "profile_photo_url": 1})
-        if user:
-            user["_id"] = str(user["_id"])
-            top_spenders.append({"user": user, "total": info["total"], "count": info["count"]})
+    if user_spending_map:
+        sorted_user_spending = sorted(user_spending_map.items(), key=lambda x: -x[1]["total"])
+        user_ids_to_fetch = []
+        for uid_str, info in sorted_user_spending:
+            try:
+                ObjectId(uid_str)
+                user_ids_to_fetch.append(ObjectId(uid_str))
+            except Exception:
+                continue
+
+        user_id_to_fetch = list(set(user_ids_to_fetch))
+        users = list(db["users"].find(
+            {"_id": {"$in": user_id_to_fetch}},
+            {"full_name": 1, "username": 1, "profile_photo_url": 1}
+        ))
+        user_map = {str(u["_id"]): u for u in users}
+
+        for uid_str, info in sorted_user_spending:
+            user = user_map.get(uid_str)
+            if user:
+                user["_id"] = uid_str
+                top_spenders.append({"user": user, "total": info["total"], "count": info["count"]})
 
     result = {
         "total_spent": total_spent,

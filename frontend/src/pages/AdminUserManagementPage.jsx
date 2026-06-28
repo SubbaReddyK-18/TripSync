@@ -319,10 +319,6 @@ export default function AdminUserManagementPage() {
                     <p className="text-lg font-bold font-mono text-accent-amber">₹{(userStats.total_expense_amount / 100).toLocaleString()}</p>
                     <p className="text-[10px] text-text-muted font-medium mt-0.5">Total Expense Amt</p>
                   </div>
-                  <div className="bg-accent-red/5 rounded-lg p-3 border border-accent-red/10 text-center">
-                    <p className="text-lg font-bold font-mono text-accent-red">{userStats.memories_uploaded}</p>
-                    <p className="text-[10px] text-text-muted font-medium mt-0.5">Memories Uploaded</p>
-                  </div>
                   <div className="bg-accent-purple/5 rounded-lg p-3 border border-accent-purple/10 text-center">
                     <p className="text-lg font-bold font-mono text-accent-purple">{userStats.places_added}</p>
                     <p className="text-[10px] text-text-muted font-medium mt-0.5">Places Added</p>

@@ -69,7 +69,6 @@ def _register_blueprints(app):
     from routes.expense_routes import expense_bp
     from routes.settlement_routes import settlement_bp
     from routes.budget_routes import budget_bp
-    from routes.memory_routes import memory_bp
     from routes.comment_routes import comment_bp
     from routes.notification_routes import notification_bp
     from routes.itinerary_routes import itinerary_bp
@@ -86,7 +85,6 @@ def _register_blueprints(app):
     app.register_blueprint(expense_bp, url_prefix="/api/v1/trips/<trip_id>/expenses")
     app.register_blueprint(settlement_bp, url_prefix="/api/v1/trips/<trip_id>/settlements")
     app.register_blueprint(budget_bp, url_prefix="/api/v1/trips/<trip_id>/budget")
-    app.register_blueprint(memory_bp, url_prefix="/api/v1/trips/<trip_id>/memories")
     app.register_blueprint(comment_bp, url_prefix="/api/v1/trips/<trip_id>/comments")
     app.register_blueprint(itinerary_bp, url_prefix="/api/v1/trips/<trip_id>/itinerary")
     app.register_blueprint(location_bp, url_prefix="/api/v1/trips/<trip_id>/locations")

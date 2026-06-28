@@ -130,7 +130,6 @@ def get_user_stats(user_id: str) -> dict:
         else:
             total_expense_amount += e.get("amount", 0)
 
-    memories_uploaded = db["memories"].count_documents({"uploaded_by": uid})
     places_added = db["locations"].count_documents({"created_by": uid})
     settlements = db["settlements"].count_documents({
         "$or": [{"from_user_id": uid}, {"to_user_id": uid}],
@@ -141,7 +140,6 @@ def get_user_stats(user_id: str) -> dict:
         "total_trips": total_trips,
         "expenses_added": expenses_added,
         "total_expense_amount": total_expense_amount,
-        "memories_uploaded": memories_uploaded,
         "places_added": places_added,
         "settlements": settlements,
     }

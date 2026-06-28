@@ -7,7 +7,6 @@ import useExpenseStore from '../stores/expenseStore'
 import { updateTrip, deleteTrip, regenerateCode, updateMemberRole, removeMember, downloadReport } from '../api/trips'
 import { getBudgetAnalytics } from '../api/budgets'
 import { getBalanceSheet, getMySettlements } from '../api/settlements'
-import { getMemories } from '../api/memories'
 import { getLocations } from '../api/locations'
 import { useRequestLock } from '../hooks/useRequestLock'
 import toast from 'react-hot-toast'
@@ -55,7 +54,6 @@ export default function TripOverviewPage() {
   const [budgetHealth, setBudgetHealth] = useState(null)
   const [balanceSheet, setBalanceSheet] = useState([])
   const [settlements, setSettlements] = useState({ i_owe: [], owed_to_me: [] })
-  const [memories, setMemories] = useState([])
   const [places, setPlaces] = useState([])
   const [activeTab, setActiveTab] = useState('overview')
   const [showInvite, setShowInvite] = useState(false)
@@ -68,7 +66,6 @@ export default function TripOverviewPage() {
     loadBudget()
     loadBalanceSheet()
     loadSettlements()
-    if (systemConfig.enableMemories) loadMemories()
     if (systemConfig.enablePlaces) loadPlaces()
   }, [tripId])
 
@@ -80,9 +77,6 @@ export default function TripOverviewPage() {
   }
   const loadSettlements = async () => {
     try { const { data } = await getMySettlements(tripId); setSettlements(data.data) } catch {}
-  }
-  const loadMemories = async () => {
-    try { const { data } = await getMemories(tripId); setMemories(data.data.memories.slice(0, 6)) } catch {}
   }
   const loadPlaces = async () => {
     try { const { data } = await getLocations(tripId); setPlaces(data.data.locations.slice(0, 6)) } catch {}
@@ -146,7 +140,6 @@ export default function TripOverviewPage() {
     { id: 'expenses', label: 'Expenses', value: expenses.length, icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
     { id: 'budget', label: 'Budget Used', value: budgetHealth?.budget ? `₹${Math.round((budgetHealth.total_spent / 100))}` : '--', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
     { id: 'members', label: 'Members', value: members.length, icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z' },
-    ...(systemConfig.enableMemories ? [{ id: 'memories', label: 'Memories', value: memories.length, icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' }] : []),
     ...(systemConfig.enablePlaces ? [{ id: 'places', label: 'Places', value: places.length, icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z' }] : []),
     { id: 'settlements', label: 'Pending Settlements', value: pendingSettlementCount, icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4' },
   ]
@@ -283,33 +276,6 @@ export default function TripOverviewPage() {
                 </div>
               ))}
             </div>
-          </div>
-        )
-      case 'memories':
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-text-muted">{memories.length} memory{memories.length !== 1 ? 'ies' : 'y'} captured</p>
-              <Link to={`/trips/${tripId}/memories`} className="text-sm font-semibold text-accent-blue hover:underline">
-                View All →
-              </Link>
-            </div>
-            {memories.length === 0 ? (
-              <div className="card text-center py-12">
-                <div className="w-14 h-14 rounded-2xl bg-accent-blue/10 flex items-center justify-center mx-auto mb-3 text-2xl">📸</div>
-                <p className="text-text-muted font-medium">No memories yet</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {memories.map((mem) => (
-                  <Link key={mem._id} to={`/trips/${tripId}/memories`} className="group relative rounded-2xl overflow-hidden aspect-square">
-                    <img src={mem.cloudinary_url} alt={mem.caption} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    {mem.caption && <p className="absolute bottom-2 left-2 right-2 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 truncate">{mem.caption}</p>}
-                  </Link>
-                ))}
-              </div>
-            )}
           </div>
         )
       case 'places':
@@ -669,7 +635,9 @@ export default function TripOverviewPage() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+      <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 ${
+        stats.length === 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-6'
+      }`}>
         {stats.map((stat) => {
           const isActive = activeTab === stat.id
           return (

@@ -59,26 +59,57 @@ class TripReportPDF(FPDF):
         self.ln(2)
 
 
-def generate_trip_report(trip_id: str) -> BytesIO:
+def get_report_data(trip_id):
     db = get_db()
     trip = db["trips"].find_one({"_id": ObjectId(trip_id)})
     if not trip:
         raise ValueError("Trip not found")
 
-    members = list(db["members"].find({"trip_id": ObjectId(trip_id), "status": "active"}))
-    member_user_ids = [m["user_id"] for m in members]
-    member_users = list(db["users"].find({"_id": {"$in": member_user_ids}}))
-    user_map = {str(u["_id"]): u for u in member_users}
+    members = list(db["members"].aggregate([
+        {"$match": {"trip_id": ObjectId(trip_id), "status": "active"}},
+        {"$lookup": {"from": "users", "localField": "user_id", "foreignField": "_id", "as": "user"}},
+        {"$unwind": {"path": "$user", "preserveNullAndEmptyArrays": True}}
+    ]))
+    user_map = {}
+    for m in members:
+        u = m.get("user", {})
+        user_map[str(u.get("_id", ""))] = u
 
     expenses = list(db["expenses"].find({"trip_id": ObjectId(trip_id)}).sort("date", -1))
     settlements = list(db["settlements"].find({"trip_id": ObjectId(trip_id)}).sort("created_at", -1))
     locations = list(db["locations"].find({"trip_id": ObjectId(trip_id)}).sort("visit_date", 1))
     itineraries = list(db["itineraries"].find({"trip_id": ObjectId(trip_id)}).sort("date", 1))
-    memories = list(db["memories"].find({"trip_id": ObjectId(trip_id)}).sort("upload_date", -1))
     budget = db["budgets"].find_one({"trip_id": ObjectId(trip_id)})
 
     total_spent = sum(e["amount"] for e in expenses)
     total_budget = budget["total_amount"] if budget else 0
+
+    return {
+        "trip": trip,
+        "members": members,
+        "user_map": user_map,
+        "expenses": expenses,
+        "settlements": settlements,
+        "locations": locations,
+        "itineraries": itineraries,
+        "budget": budget,
+        "total_spent": total_spent,
+        "total_budget": total_budget,
+    }
+
+
+def generate_trip_report(trip_id: str) -> BytesIO:
+    data = get_report_data(trip_id)
+    trip = data["trip"]
+    members = data["members"]
+    user_map = data["user_map"]
+    expenses = data["expenses"]
+    settlements = data["settlements"]
+    locations = data["locations"]
+    itineraries = data["itineraries"]
+    budget = data["budget"]
+    total_spent = data["total_spent"]
+    total_budget = data["total_budget"]
     remaining = max(0, total_budget - total_spent) if total_budget else 0
     pct_used = round((total_spent / total_budget) * 100, 1) if total_budget > 0 else 0
     if not budget:
@@ -309,24 +340,6 @@ def generate_trip_report(trip_id: str) -> BytesIO:
     else:
         pdf.no_data()
     pdf.ln(4)
-
-    # ── MEMORIES SUMMARY ──
-    pdf.section_title("Memories Summary")
-    pdf.sub_section("Total Memories", str(len(memories)))
-    pdf.ln(2)
-    if memories:
-        for mem in memories:
-            caption = mem.get("caption", "Untitled")
-            uploader_id = str(mem.get("uploader_id", ""))
-            uploader = user_map.get(uploader_id, {}).get("full_name") or user_map.get(uploader_id, {}).get("username") or ""
-            udate = mem.get("upload_date", "")
-            if hasattr(udate, "strftime"):
-                udate = to_ist(udate).strftime("%d %b %Y")
-            pdf.set_font("Helvetica", "", 9)
-            pdf.set_text_color(30, 30, 30)
-            pdf.cell(0, 5, f"{caption}  -  {uploader}  -  {udate}", new_x="LMARGIN", new_y="NEXT")
-    else:
-        pdf.no_data()
     pdf.ln(4)
 
     pdf_bytes = pdf.output()

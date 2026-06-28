@@ -2,11 +2,9 @@ from datetime import datetime
 from flask import Blueprint, send_file, g, request
 from middleware.auth_middleware import require_auth
 from services.member_service import require_editor
-from services.report_service import generate_trip_report
+from services.report_service import generate_trip_report, get_report_data
 from services.export_service import export_trip_report_xlsx, export_trip_report_csv
 from middleware.error_handler import AppError
-from config.database import get_db
-from bson.objectid import ObjectId
 
 report_bp = Blueprint("report", __name__)
 
@@ -36,32 +34,25 @@ def download_report(trip_id):
         except Exception as e:
             raise AppError("Failed to generate report", "REPORT_ERROR", 500)
 
-    db = get_db()
-    trip = db["trips"].find_one({"_id": ObjectId(trip_id)})
-    if not trip:
-        raise AppError("Trip not found", "REPORT_ERROR", 404)
-
-    members = list(db["members"].find({"trip_id": ObjectId(trip_id), "status": "active"}))
-    member_user_ids = [m["user_id"] for m in members]
-    member_users = list(db["users"].find({"_id": {"$in": member_user_ids}}))
-    user_map = {str(u["_id"]): u for u in member_users}
-
-    expenses = list(db["expenses"].find({"trip_id": ObjectId(trip_id)}).sort("date", -1))
-    settlements = list(db["settlements"].find({"trip_id": ObjectId(trip_id)}).sort("created_at", -1))
-    locations = list(db["locations"].find({"trip_id": ObjectId(trip_id)}).sort("visit_date", 1))
-    memories = list(db["memories"].find({"trip_id": ObjectId(trip_id)}).sort("upload_date", -1))
-    budget = db["budgets"].find_one({"trip_id": ObjectId(trip_id)})
+    data = get_report_data(trip_id)
+    trip = data["trip"]
+    members = data["members"]
+    user_map = data["user_map"]
+    expenses = data["expenses"]
+    settlements = data["settlements"]
+    locations = data["locations"]
+    budget = data["budget"]
 
     trip_title = trip.get("title", "Untitled Trip")
     safe_title = "".join(c if c.isalnum() or c in " _-" else "_" for c in trip_title)
     date_str = datetime.now().strftime('%d_%b_%Y')
 
     if fmt == "xlsx":
-        buf = export_trip_report_xlsx(trip, members, user_map, expenses, settlements, locations, memories, budget)
+        buf = export_trip_report_xlsx(trip, members, user_map, expenses, settlements, locations, budget)
         filename = f"{safe_title.lower().replace(' ', '_')}_report_{date_str}.xlsx"
         return send_file(buf, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", as_attachment=True, download_name=filename)
 
     if fmt == "csv":
-        buf = export_trip_report_csv(trip, members, user_map, expenses, settlements, locations, memories, budget)
+        buf = export_trip_report_csv(trip, members, user_map, expenses, settlements, locations, budget)
         filename = f"{safe_title.lower().replace(' ', '_')}_report_{date_str}.csv"
         return send_file(buf, mimetype="text/csv", as_attachment=True, download_name=filename)

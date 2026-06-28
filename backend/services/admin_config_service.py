@@ -4,7 +4,6 @@ DEFAULT_CONFIG = {
     "allowRegistrations": True,
     "enableTrips": True,
     "enableExpenses": True,
-    "enableMemories": True,
     "enablePlaces": True,
     "enableSettlements": True,
 }

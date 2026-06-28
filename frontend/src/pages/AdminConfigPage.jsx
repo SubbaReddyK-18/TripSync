@@ -6,7 +6,6 @@ const TOGGLES = [
   { key: 'allowRegistrations', label: 'Allow New User Registrations', desc: 'Users can create new accounts' },
   { key: 'enableTrips', label: 'Enable Trip Creation', desc: 'Users can create and join trips' },
   { key: 'enableExpenses', label: 'Enable Expense Management', desc: 'Users can add and manage expenses' },
-  { key: 'enableMemories', label: 'Enable Memories Module', desc: 'Users can upload and view memories' },
   { key: 'enablePlaces', label: 'Enable Places Module', desc: 'Users can add and view visited places' },
   { key: 'enableSettlements', label: 'Enable Settlement Module', desc: 'Users can settle payments' },
 ]

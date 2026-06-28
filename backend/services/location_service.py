@@ -42,11 +42,23 @@ def get_trip_locations(trip_id: str) -> list:
     locations = list(
         db["locations"].find({"trip_id": ObjectId(trip_id)}).sort("visit_date", -1)
     )
+
+    if not locations:
+        return []
+
+    user_ids = [ObjectId(loc["added_by"]) for loc in locations]
+    users = list(db["users"].find(
+        {"_id": {"$in": list(set(user_ids))}},
+        {"full_name": 1, "username": 1, "profile_photo_url": 1}
+    ))
+    user_map = {str(u["_id"]): u for u in users}
+
     for loc in locations:
         loc["_id"] = str(loc["_id"])
         loc["trip_id"] = str(loc["trip_id"])
-        loc["added_by"] = str(loc["added_by"])
-        adder = db["users"].find_one({"_id": ObjectId(loc["added_by"])}, {"full_name": 1, "username": 1, "profile_photo_url": 1})
+        uid_str = str(loc["added_by"])
+        loc["added_by"] = uid_str
+        adder = user_map.get(uid_str)
         loc["added_by_user"] = {
             "_id": str(adder["_id"]),
             "full_name": adder["full_name"],

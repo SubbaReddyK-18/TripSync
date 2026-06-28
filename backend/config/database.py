@@ -9,7 +9,8 @@ db = None
 def init_db(uri: str):
     global client, db
     try:
-        client = MongoClient(uri, maxPoolSize=10, serverSelectionTimeoutMS=5000)
+        # Increased pool size for concurrent requests on Render
+        client = MongoClient(uri, maxPoolSize=50, serverSelectionTimeoutMS=5000)
         client.admin.command("ping")
     except ConnectionFailure:
         raise RuntimeError("Failed to connect to MongoDB")
@@ -37,10 +38,13 @@ def _create_indexes():
     expenses = db["expenses"]
     expenses.create_index("trip_id")
     expenses.create_index([("trip_id", ASCENDING), ("date", DESCENDING)])
+    expenses.create_index("paid_by")
 
     settlements = db["settlements"]
     settlements.create_index("trip_id")
     settlements.create_index([("trip_id", ASCENDING), ("status", ASCENDING)])
+    settlements.create_index("from_user_id")
+    settlements.create_index("to_user_id")
 
     budgets = db["budgets"]
     budgets.create_index("trip_id", unique=True)
@@ -49,21 +53,21 @@ def _create_indexes():
     itineraries.create_index("trip_id")
     itineraries.create_index([("trip_id", ASCENDING), ("date", ASCENDING)])
 
-    memories = db["memories"]
-    memories.create_index("trip_id")
-
     comments = db["comments"]
     comments.create_index("trip_id")
     comments.create_index([("target_type", ASCENDING), ("target_id", ASCENDING)])
     comments.create_index("parent_comment_id")
+    comments.create_index("author_id")
 
     notifications = db["notifications"]
     notifications.create_index([("recipient_id", ASCENDING), ("is_read", ASCENDING)])
+    notifications.create_index([("recipient_id", ASCENDING), ("created_at", DESCENDING)])
     notifications.create_index("created_at")
 
     activity_feed = db["activity_feed"]
     activity_feed.create_index("trip_id")
     activity_feed.create_index([("trip_id", ASCENDING), ("created_at", DESCENDING)])
+    activity_feed.create_index([("actor_id", ASCENDING), ("created_at", DESCENDING)])
 
     locations = db["locations"]
     locations.create_index("trip_id")

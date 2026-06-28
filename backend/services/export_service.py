@@ -284,7 +284,7 @@ def export_logs(logs, fmt):
 
 # ── TRIP REPORT EXPORT (multi-format) ──
 
-def export_trip_report_xlsx(trip, members, user_map, expenses, settlements, locations, memories, budget):
+def export_trip_report_xlsx(trip, members, user_map, expenses, settlements, locations, budget):
     from openpyxl import Workbook
     wb = Workbook()
 
@@ -370,24 +370,13 @@ def export_trip_report_xlsx(trip, members, user_map, expenses, settlements, loca
             vdate = to_ist(vdate).strftime("%d %b %Y")
         ws_pl.append([loc.get("name", ""), loc.get("category", ""), f"{loc.get('latitude', '')}, {loc.get('longitude', '')}", added_by, vdate])
 
-    # Memories
-    ws_mem = wb.create_sheet("Memories")
-    ws_mem.append(["Caption", "Uploaded By", "Date"])
-    for mem in memories:
-        uploader_id = str(mem.get("uploader_id", ""))
-        uploader = user_map.get(uploader_id, {}).get("full_name") or user_map.get(uploader_id, {}).get("username") or ""
-        udate = mem.get("upload_date", "")
-        if hasattr(udate, "strftime"):
-            udate = to_ist(udate).strftime("%d %b %Y")
-        ws_mem.append([mem.get("caption", ""), uploader, udate])
-
     buf = BytesIO()
     wb.save(buf)
     buf.seek(0)
     return buf
 
 
-def export_trip_report_csv(trip, members, user_map, expenses, settlements, locations, memories, budget):
+def export_trip_report_csv(trip, members, user_map, expenses, settlements, locations, budget):
     buf = BytesIO()
     writer = csv.writer(buf)
     writer.writerow(["TripSync - Trip Report"])

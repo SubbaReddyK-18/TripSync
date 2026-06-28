@@ -8,9 +8,13 @@ from services.audit_helper import log_and_audit
 
 def _build_net_balances(trip_id: str, members: list) -> dict:
     db = get_db()
-    expenses = db["expenses"].find({"trip_id": ObjectId(trip_id)})
-
     net = {str(m["user_id"]): 0 for m in members}
+
+    # Use projection to only fetch needed fields — less data over the wire
+    expenses = db["expenses"].find(
+        {"trip_id": ObjectId(trip_id)},
+        {"paid_by": 1, "splits": 1, "amount": 1}
+    )
 
     for expense in expenses:
         expense_amount = int(round(expense.get("amount", 0)))
@@ -33,7 +37,10 @@ def _build_net_balances(trip_id: str, members: list) -> dict:
             net[uid] -= int(round(split.get("amount", 0)))
 
     # Subtract already-settled payments so they are not re-generated as pending
-    settled = db["settlements"].find({"trip_id": ObjectId(trip_id), "status": "settled"})
+    settled = db["settlements"].find(
+        {"trip_id": ObjectId(trip_id), "status": "settled"},
+        {"from_user_id": 1, "to_user_id": 1, "amount": 1}
+    )
     for s in settled:
         from_id = str(s["from_user_id"]) if isinstance(s["from_user_id"], ObjectId) else s["from_user_id"]
         to_id = str(s["to_user_id"]) if isinstance(s["to_user_id"], ObjectId) else s["to_user_id"]
@@ -42,12 +49,9 @@ def _build_net_balances(trip_id: str, members: list) -> dict:
             net[from_id] = 0
         if to_id not in net:
             net[to_id] = 0
-        # Payer of settlement reduced their debt (net goes up for them)
         net[from_id] += s_amount
-        # Receiver of settlement reduced their credit (net goes down for them)
         net[to_id] -= s_amount
 
-    # Sanitize final net dictionary values to be pure integers
     for uid in list(net.keys()):
         net[uid] = int(round(net[uid]))
 
@@ -131,29 +135,44 @@ def recalculate_settlements(trip_id: str):
     transactions = _minimize_settlements(net)
 
     _clear_pending_settlements(trip_id)
+    if not transactions:
+        return []
 
     now = datetime.now(timezone.utc)
-    results = []
+    currency = _get_trip_currency(trip_id)
+    docs = []
     for t in transactions:
-        settlement = {
+        docs.append({
             "trip_id": ObjectId(trip_id),
             "from_user_id": ObjectId(t["from_user_id"]),
             "to_user_id": ObjectId(t["to_user_id"]),
             "amount": t["amount"],
-            "currency": _get_trip_currency(trip_id),
+            "currency": currency,
             "status": "pending",
             "payment_method": None,
             "payment_note": None,
             "paid_at": None,
             "confirmed_at": None,
             "created_at": now,
-        }
-        result = db["settlements"].insert_one(settlement)
-        settlement["_id"] = str(result.inserted_id)
-        settlement["trip_id"] = trip_id
-        settlement["from_user_id"] = t["from_user_id"]
-        settlement["to_user_id"] = t["to_user_id"]
-        results.append(settlement)
+        })
+
+    inserted = db["settlements"].insert_many(docs)
+    results = []
+    for i, t in enumerate(transactions):
+        results.append({
+            "_id": str(inserted.inserted_ids[i]),
+            "trip_id": trip_id,
+            "from_user_id": t["from_user_id"],
+            "to_user_id": t["to_user_id"],
+            "amount": t["amount"],
+            "currency": currency,
+            "status": "pending",
+            "payment_method": None,
+            "payment_note": None,
+            "paid_at": None,
+            "confirmed_at": None,
+            "created_at": now,
+        })
 
     return results
 

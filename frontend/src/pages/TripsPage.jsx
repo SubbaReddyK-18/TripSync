@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import useTripStore from '../stores/tripStore'
 import useUiStore from '../stores/uiStore'
 import { createTrip } from '../api/trips'
+import { useRequestLock } from '../hooks/useRequestLock'
 import toast from 'react-hot-toast'
 import { motion } from 'framer-motion'
 
@@ -51,20 +52,21 @@ export default function TripsPage() {
 
   const [sortOrder, setSortOrder] = useState('latest')
   const [showCreate, setShowCreate] = useState(false)
+  const [creating, createTripAction] = useRequestLock()
   const [form, setForm] = useState({ title: '', destination: '', start_date: '', end_date: '', description: '' })
 
   const handleCreate = async (e) => {
     e.preventDefault()
-    try {
+    await createTripAction(async () => {
       const { data } = await createTrip(form)
       toast.success('Trip created!')
       setShowCreate(false)
       setForm({ title: '', destination: '', start_date: '', end_date: '', description: '' })
       fetchTrips()
       navigate(`/trips/${data.data.trip._id}`)
-    } catch (err) {
+    }).catch((err) => {
       toast.error(err.response?.data?.error?.message || err.message || 'Failed to create trip')
-    }
+    })
   }
 
   const displayTrips = useMemo(() => {
@@ -275,7 +277,7 @@ export default function TripsPage() {
                 value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               <div className="flex gap-3 justify-end pt-2">
                 <button type="button" onClick={() => setShowCreate(false)} className="btn-secondary">Cancel</button>
-                <button type="submit" className="btn-primary">Create</button>
+                <button type="submit" disabled={creating} className="btn-primary">{creating ? 'Creating Trip...' : 'Create'}</button>
               </div>
             </form>
           </motion.div>

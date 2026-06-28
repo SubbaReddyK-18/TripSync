@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getBudgetAnalytics, createBudget, updateBudget, getBudgetHistory } from '../api/budgets'
 import { downloadReport } from '../api/trips'
+import { useRequestLock } from '../hooks/useRequestLock'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid } from 'recharts'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -23,6 +24,7 @@ export default function BudgetPage() {
   const [data, setData] = useState(null)
   const [history, setHistory] = useState([])
   const [loading, setLoading] = useState(true)
+  const [saving, saveBudget] = useRequestLock()
   const [showModal, setShowModal] = useState(false)
   const [isUpdate, setIsUpdate] = useState(false)
   const [form, setForm] = useState({ total_amount: '', reason: '' })
@@ -44,12 +46,12 @@ export default function BudgetPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    try {
+    await saveBudget(async () => {
       const payload = { total_amount: Math.round(parseFloat(form.total_amount) * 100) }
       if (isUpdate) { const reason = (form.reason || '').trim(); if (reason) payload.reason = reason; await updateBudget(tripId, payload); toast.success('Budget updated') }
       else { await createBudget(tripId, payload); toast.success('Budget created') }
       setShowModal(false); load()
-    } catch (err) { toast.error(err.response?.data?.error?.message || 'Failed') }
+    }).catch((err) => { toast.error(err.response?.data?.error?.message || 'Failed') })
   }
 
   if (loading) return (
@@ -324,7 +326,7 @@ export default function BudgetPage() {
               )}
               <div className="flex gap-3 justify-end">
                 <button type="button" onClick={() => setShowModal(false)} className="btn-secondary">Cancel</button>
-                <button type="submit" className="btn-primary">{isUpdate ? 'Update Budget' : 'Set Budget'}</button>
+                <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Saving...' : (isUpdate ? 'Update Budget' : 'Set Budget')}</button>
               </div>
             </form>
           </motion.div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getAdminUsers, getUserStats, updateUserRole, updateUserStatus } from '../api/admin'
+import { useRequestLock } from '../hooks/useRequestLock'
 import toast from 'react-hot-toast'
 
 const fmtTime = (iso) => {
@@ -35,6 +36,7 @@ export default function AdminUserManagementPage() {
   const [userStats, setUserStats] = useState(null)
   const [statsLoading, setStatsLoading] = useState(false)
   const [confirmAction, setConfirmAction] = useState(null)
+  const [confirming, confirmActionLock] = useRequestLock()
 
   const loadUsers = async () => {
     setLoading(true)
@@ -88,25 +90,27 @@ export default function AdminUserManagementPage() {
   }
 
   const handleRoleChange = async (userId, newRole) => {
-    try {
+    await confirmActionLock(async () => {
       await updateUserRole(userId, newRole)
       toast.success(`User ${newRole === 'admin' ? 'promoted to admin' : 'demoted to user'}`)
       loadUsers()
-    } catch (err) {
+      setConfirmAction(null)
+    }).catch((err) => {
       toast.error(err.response?.data?.error?.message || 'Failed to update role')
-    }
-    setConfirmAction(null)
+      setConfirmAction(null)
+    })
   }
 
   const handleStatusChange = async (userId, isActive) => {
-    try {
+    await confirmActionLock(async () => {
       await updateUserStatus(userId, isActive)
       toast.success(`User ${isActive ? 'activated' : 'deactivated'}`)
       loadUsers()
-    } catch (err) {
+      setConfirmAction(null)
+    }).catch((err) => {
       toast.error(err.response?.data?.error?.message || 'Failed to update status')
-    }
-    setConfirmAction(null)
+      setConfirmAction(null)
+    })
   }
 
   return (
@@ -384,6 +388,7 @@ export default function AdminUserManagementPage() {
             <div className="flex gap-3 justify-end">
               <button onClick={() => setConfirmAction(null)} className="btn-secondary">Cancel</button>
               <button
+                disabled={confirming}
                 onClick={() => {
                   if (confirmAction.type === 'promote') handleRoleChange(confirmAction.user._id, 'admin')
                   else if (confirmAction.type === 'demote') handleRoleChange(confirmAction.user._id, 'user')
@@ -392,7 +397,7 @@ export default function AdminUserManagementPage() {
                 }}
                 className="btn-primary"
               >
-                Confirm
+                {confirming ? 'Processing...' : 'Confirm'}
               </button>
             </div>
           </div>

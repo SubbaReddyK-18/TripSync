@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { getLocations, createLocation, deleteLocation } from '../api/locations'
+import { useRequestLock } from '../hooks/useRequestLock'
 import toast from 'react-hot-toast'
 import { youName } from '../utils/displayName'
 import useAuthStore from '../stores/authStore'
@@ -44,6 +45,7 @@ export default function PlacesPage() {
   const { systemConfig } = useUiStore()
   const [locations, setLocations] = useState([])
   const [loading, setLoading] = useState(true)
+  const [submitting, submitPlace] = useRequestLock()
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({
     name: '', latitude: '', longitude: '', visit_date: new Date().toISOString().split('T')[0],
@@ -98,13 +100,13 @@ export default function PlacesPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    try {
+    await submitPlace(async () => {
       const payload = { ...form, latitude: parseFloat(form.latitude), longitude: parseFloat(form.longitude) }
       await createLocation(tripId, payload)
       toast.success('Location added'); setShowAdd(false)
       setForm({ name: '', latitude: '', longitude: '', visit_date: new Date().toISOString().split('T')[0], category: 'attraction', description: '' })
       load()
-    } catch (err) { toast.error(err.response?.data?.error?.message || 'Failed') }
+    }).catch((err) => { toast.error(err.response?.data?.error?.message || 'Failed') })
   }
 
   const handleDelete = async (id) => {
@@ -263,7 +265,7 @@ export default function PlacesPage() {
               <textarea className="input-field" placeholder="Description (optional)" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               <div className="flex gap-3 justify-end">
                 <button type="button" onClick={() => setShowAdd(false)} className="btn-secondary">Cancel</button>
-                <button type="submit" className="btn-primary">Add Place</button>
+                <button type="submit" disabled={submitting} className="btn-primary">{submitting ? 'Adding Place...' : 'Add Place'}</button>
               </div>
             </form>
           </motion.div>

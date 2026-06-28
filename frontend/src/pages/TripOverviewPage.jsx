@@ -9,6 +9,7 @@ import { getBudgetAnalytics } from '../api/budgets'
 import { getBalanceSheet, getMySettlements } from '../api/settlements'
 import { getMemories } from '../api/memories'
 import { getLocations } from '../api/locations'
+import { useRequestLock } from '../hooks/useRequestLock'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { you } from '../utils/displayName'
@@ -48,6 +49,9 @@ export default function TripOverviewPage() {
   const { activeTrip, members, activity, fetchTrip, fetchMembers, fetchActivity, isLoading } = useTripStore()
   const { expenses, fetchExpenses } = useExpenseStore()
   const navigate = useNavigate()
+  const [deleting, deleteAction] = useRequestLock()
+  const [regenerating, regenAction] = useRequestLock()
+  const [exporting, exportAction] = useRequestLock()
   const [budgetHealth, setBudgetHealth] = useState(null)
   const [balanceSheet, setBalanceSheet] = useState([])
   const [settlements, setSettlements] = useState({ i_owe: [], owed_to_me: [] })
@@ -90,8 +94,9 @@ export default function TripOverviewPage() {
 
   const handleDelete = async () => {
     if (!confirm('Delete this trip permanently? This cannot be undone.')) return
-    try { await deleteTrip(tripId); toast.success('Trip deleted'); navigate('/dashboard') }
-    catch (err) { toast.error(err.response?.data?.error?.message || 'Failed to delete') }
+    await deleteAction(async () => {
+      await deleteTrip(tripId); toast.success('Trip deleted'); navigate('/dashboard')
+    }).catch((err) => { toast.error(err.response?.data?.error?.message || 'Failed to delete') })
   }
 
   const [exportOpen, setExportOpen] = useState(false)
@@ -104,7 +109,7 @@ export default function TripOverviewPage() {
   }, [])
 
   const handleExportReport = async (fmt = 'pdf') => {
-    try {
+    await exportAction(async () => {
       const response = await downloadReport(tripId, fmt)
       const mimeTypes = { pdf: 'application/pdf', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', csv: 'text/csv' }
       const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeTypes[fmt] }))
@@ -113,13 +118,14 @@ export default function TripOverviewPage() {
       link.setAttribute('download', `${activeTrip?.title?.replace(/\s+/g, '_').toLowerCase() || 'trip'}_report.${ext}`)
       document.body.appendChild(link); link.click(); link.remove(); window.URL.revokeObjectURL(url)
       toast.success(`Report downloaded as ${fmt.toUpperCase()}`)
-    } catch (err) { toast.error(err.response?.data?.error?.message || 'Failed to download report') }
+    }).catch((err) => { toast.error(err.response?.data?.error?.message || 'Failed to download report') })
     setExportOpen(false)
   }
 
   const handleRegenCode = async () => {
-    try { const { data } = await regenerateCode(tripId); toast.success(`New code: ${data.data.invite_code}`); fetchTrip(tripId) }
-    catch (err) { toast.error(err.response?.data?.error?.message || 'Failed to regenerate') }
+    await regenAction(async () => {
+      const { data } = await regenerateCode(tripId); toast.success(`New code: ${data.data.invite_code}`); fetchTrip(tripId)
+    }).catch((err) => { toast.error(err.response?.data?.error?.message || 'Failed to regenerate') })
   }
 
   if (isLoading || !activeTrip || activeTrip._id !== tripId) {
@@ -617,7 +623,7 @@ export default function TripOverviewPage() {
             {canEdit && (
               <div className="flex gap-2 shrink-0">
                 <div className="relative" ref={exportRef}>
-                  <button onClick={() => setExportOpen(!exportOpen)} className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white/20 transition-colors flex items-center gap-1.5">
+                  <button onClick={() => setExportOpen(!exportOpen)} disabled={exporting} className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white/20 transition-colors flex items-center gap-1.5 disabled:opacity-50">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
@@ -642,13 +648,13 @@ export default function TripOverviewPage() {
                 </div>
                 {isAdmin && (
                   <>
-                    <button onClick={handleRegenCode} className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white/20 transition-colors flex items-center gap-1.5">
+                    <button onClick={handleRegenCode} disabled={regenerating} className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white/20 transition-colors flex items-center gap-1.5 disabled:opacity-50">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
                       Regenerate
                     </button>
-                    <button onClick={handleDelete} className="px-4 py-2 rounded-xl bg-accent-red/20 backdrop-blur-md border border-accent-red/30 text-white text-sm font-semibold hover:bg-accent-red/30 transition-colors flex items-center gap-1.5">
+                    <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 rounded-xl bg-accent-red/20 backdrop-blur-md border border-accent-red/30 text-white text-sm font-semibold hover:bg-accent-red/30 transition-colors flex items-center gap-1.5 disabled:opacity-50">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>

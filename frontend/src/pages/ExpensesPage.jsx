@@ -5,6 +5,7 @@ import { createExpense, deleteExpense } from '../api/expenses'
 import { createComment, getComments, deleteComment } from '../api/comments'
 import { getMembers } from '../api/trips'
 import { getBalanceSheet } from '../api/settlements'
+import { useRequestLock } from '../hooks/useRequestLock'
 import toast from 'react-hot-toast'
 import useAuthStore from '../stores/authStore'
 import useUiStore from '../stores/uiStore'
@@ -67,6 +68,8 @@ export default function ExpensesPage() {
   const [comments, setComments] = useState({})
   const [loadingComments, setLoadingComments] = useState({})
   const [commentText, setCommentText] = useState({})
+  const [submitting, submitExpense] = useRequestLock()
+  const [submittingComment, submitCommentAction] = useRequestLock()
   const [form, setForm] = useState({
     title: '', amount: '', category: 'other', date: new Date().toISOString().split('T')[0],
     paid_by: user?._id || '', split_type: 'equal', notes: '',
@@ -176,7 +179,7 @@ export default function ExpensesPage() {
       finalPaidBy = form.paid_by
     }
 
-    try {
+    await submitExpense(async () => {
       await createExpense(tripId, { 
         ...form, 
         amount: Math.round(parseFloat(form.amount) * 100), 
@@ -187,7 +190,7 @@ export default function ExpensesPage() {
       setForm({ title: '', amount: '', category: 'other', date: new Date().toISOString().split('T')[0], paid_by: user._id, split_type: 'equal', notes: '' })
       setPayerAmounts({})
       setSelectedMembers([]); fetchExpenses(tripId); loadBalanceSheet()
-    } catch (err) { toast.error(err.response?.data?.error?.message || 'Failed to add expense') }
+    }).catch((err) => { toast.error(err.response?.data?.error?.message || 'Failed to add expense') })
   }
 
   const handleDelete = async (id) => {
@@ -198,8 +201,9 @@ export default function ExpensesPage() {
 
   const handleComment = async (expenseId) => {
     const text = commentText[expenseId]?.trim(); if (!text) return
-    try { await createComment(tripId, { target_type: 'expense', target_id: expenseId, text }); toast.success('Comment added'); setCommentText((p) => ({ ...p, [expenseId]: '' })); loadComments(expenseId) }
-    catch (err) { toast.error(err.response?.data?.error?.message || 'Failed') }
+    await submitCommentAction(async () => {
+      await createComment(tripId, { target_type: 'expense', target_id: expenseId, text }); toast.success('Comment added'); setCommentText((p) => ({ ...p, [expenseId]: '' })); loadComments(expenseId)
+    }).catch((err) => { toast.error(err.response?.data?.error?.message || 'Failed') })
   }
 
   const handleDeleteComment = async (expenseId, commentId) => {
@@ -431,7 +435,7 @@ export default function ExpensesPage() {
                                         value={commentText[expense._id] || ''}
                                         onChange={(e) => setCommentText((p) => ({ ...p, [expense._id]: e.target.value }))}
                                         onKeyDown={(e) => { if (e.key === 'Enter') handleComment(expense._id) }} />
-                                      <button onClick={() => handleComment(expense._id)} className="btn-primary text-xs px-3 py-1.5" disabled={!commentText[expense._id]?.trim()}>Post</button>
+                                      <button onClick={() => handleComment(expense._id)} className="btn-primary text-xs px-3 py-1.5" disabled={submittingComment || !commentText[expense._id]?.trim()}>{submittingComment ? 'Posting...' : 'Post'}</button>
                                     </div>
                                   </div>
                                 </div>
@@ -568,7 +572,7 @@ export default function ExpensesPage() {
               <textarea className="input-field" placeholder="Notes (optional)" rows={2} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
               <div className="flex gap-3 justify-end">
                 <button type="button" onClick={() => setShowAdd(false)} className="btn-secondary">Cancel</button>
-                <button type="submit" className="btn-primary">Add Expense</button>
+                <button type="submit" disabled={submitting} className="btn-primary">{submitting ? 'Adding Expense...' : 'Add Expense'}</button>
               </div>
             </form>
           </motion.div>

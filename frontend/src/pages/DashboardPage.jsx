@@ -7,6 +7,7 @@ import useUiStore from '../stores/uiStore'
 import { createTrip, joinTripByCode } from '../api/trips'
 import * as dashboardApi from '../api/dashboard'
 import { getAdminAnalytics, exportAnalytics as exportAnalyticsApi } from '../api/admin'
+import { useRequestLock } from '../hooks/useRequestLock'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid } from 'recharts'
 import toast from 'react-hot-toast'
 import { you } from '../utils/displayName'
@@ -254,6 +255,8 @@ export default function DashboardPage() {
   const [showJoin, setShowJoin] = useState(false)
   const [joinCode, setJoinCode] = useState('')
   const [form, setForm] = useState({ title: '', destination: '', start_date: '', end_date: '', description: '' })
+  const [creating, createAction] = useRequestLock()
+  const [joining, joinAction] = useRequestLock()
 
   const [adminAnalytics, setAdminAnalytics] = useState(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(true)
@@ -328,7 +331,7 @@ export default function DashboardPage() {
 
   const handleCreate = async (e) => {
     e.preventDefault()
-    try {
+    await createAction(async () => {
       const { data } = await createTrip(form)
       toast.success('Trip created!')
       setShowCreate(false)
@@ -336,15 +339,15 @@ export default function DashboardPage() {
       fetchTrips()
       loadDashboard()
       navigate(`/trips/${data.data.trip._id}`)
-    } catch (err) {
+    }).catch((err) => {
       const msg = err.response?.data?.error?.message || err.message || 'Failed to create trip'
       toast.error(msg)
-    }
+    })
   }
 
   const handleJoin = async (e) => {
     e.preventDefault()
-    try {
+    await joinAction(async () => {
       const { data } = await joinTripByCode(joinCode)
       toast.success('Joined trip!')
       setShowJoin(false)
@@ -354,9 +357,9 @@ export default function DashboardPage() {
       if (data?.data?.trip?._id) {
         navigate(`/trips/${data.data.trip._id}`)
       }
-    } catch (err) {
+    }).catch((err) => {
       toast.error(err.response?.data?.error?.message || 'Failed to join trip')
-    }
+    })
   }
 
   const getProximity = (trip) => {
@@ -1548,7 +1551,7 @@ export default function DashboardPage() {
                 value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               <div className="flex gap-3 justify-end pt-2">
                 <button type="button" onClick={() => setShowCreate(false)} className="btn-secondary">Cancel</button>
-                <button type="submit" className="btn-primary">Create</button>
+                <button type="submit" disabled={creating} className="btn-primary">{creating ? 'Creating Trip...' : 'Create'}</button>
               </div>
             </form>
           </motion.div>
@@ -1570,7 +1573,7 @@ export default function DashboardPage() {
                 onChange={(e) => setJoinCode(e.target.value.toUpperCase())} maxLength={8} required />
               <div className="flex gap-3 justify-end pt-2">
                 <button type="button" onClick={() => setShowJoin(false)} className="btn-secondary">Cancel</button>
-                <button type="submit" className="btn-primary">Join</button>
+                <button type="submit" disabled={joining} className="btn-primary">{joining ? 'Joining...' : 'Join'}</button>
               </div>
             </form>
           </motion.div>

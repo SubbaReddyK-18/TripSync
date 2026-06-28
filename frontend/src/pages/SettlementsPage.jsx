@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getMySettlements, paySettlement, getSettlements } from '../api/settlements'
 import { getMembers } from '../api/trips'
+import { useRequestLock } from '../hooks/useRequestLock'
 import toast from 'react-hot-toast'
 import useAuthStore from '../stores/authStore'
 import useUiStore from '../stores/uiStore'
@@ -21,6 +22,7 @@ export default function SettlementsPage() {
   const { tripId } = useParams()
   const { user } = useAuthStore()
   const { systemConfig } = useUiStore()
+  const [paying, payAction] = useRequestLock()
   const [data, setData] = useState({ i_owe: [], owed_to_me: [], all: [] })
   const [loading, setLoading] = useState(true)
   const [userMap, setUserMap] = useState({})
@@ -40,8 +42,9 @@ export default function SettlementsPage() {
   }
 
   const handlePay = async (id) => {
-    try { await paySettlement(tripId, id, {}); toast.success('Payment settled'); load() }
-    catch (err) { toast.error(err.response?.data?.error?.message || 'Failed') }
+    await payAction(async () => {
+      await paySettlement(tripId, id, {}); toast.success('Payment settled'); load()
+    }).catch((err) => { toast.error(err.response?.data?.error?.message || 'Failed') })
   }
 
   const totalPending = data.i_owe.filter(s => s.status === 'pending').length + data.owed_to_me.filter(s => s.status === 'pending').length
@@ -182,7 +185,7 @@ export default function SettlementsPage() {
                       <div className="mt-2 pt-2 border-t border-border/40 flex items-center justify-between text-[11px] text-text-muted">
                         <span>{s.status === 'settled' ? `Settled ${fmtTime(s.paid_at)}` : `Created ${fmtTime(s.created_at)}`}</span>
                         {isPending && s.from_user_id === user?._id && (
-                          <button onClick={() => handlePay(s._id)} className="btn-primary text-[10px] py-1 px-3">Mark Paid</button>
+                          <button onClick={() => handlePay(s._id)} disabled={paying} className="btn-primary text-[10px] py-1 px-3">{paying ? 'Paying...' : 'Mark Paid'}</button>
                         )}
                       </div>
                     </div>
@@ -260,8 +263,8 @@ export default function SettlementsPage() {
         </div>
         <div className="mt-3 pt-3 border-t border-border/40 flex items-center justify-between text-[11px] text-text-muted">
           <span>{s.status === 'settled' ? `Settled ${fmtTime(s.paid_at)}` : `Created ${fmtTime(s.created_at)}`}</span>
-          {isPending && isIOwe && (
-            <button onClick={() => handlePay(s._id)} className="btn-primary text-[10px] py-1.5 px-3.5">Paid</button>
+            {isPending && isIOwe && (
+            <button onClick={() => handlePay(s._id)} disabled={paying} className="btn-primary text-[10px] py-1.5 px-3.5">{paying ? 'Paying...' : 'Paid'}</button>
           )}
         </div>
       </div>

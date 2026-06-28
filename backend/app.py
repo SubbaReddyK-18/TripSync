@@ -24,6 +24,7 @@ from datetime import datetime, timezone
 class CustomJSONProvider(DefaultJSONProvider):
     def default(self, o):
         if isinstance(o, datetime):
+            
             if o.tzinfo is None:
                 o = o.replace(tzinfo=timezone.utc)
             return o.isoformat()

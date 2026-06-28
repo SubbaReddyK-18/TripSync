@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getItinerary, createItem, deleteItem } from '../api/itinerary'
 import { createComment, getComments, deleteComment } from '../api/comments'
+import { useRequestLock } from '../hooks/useRequestLock'
 import useAuthStore from '../stores/authStore'
 import toast from 'react-hot-toast'
 import { youName } from '../utils/displayName'
@@ -16,6 +17,8 @@ export default function ItineraryPage() {
     title: '', description: '', date: new Date().toISOString().split('T')[0],
     start_time: '', end_time: '', location: '', type: 'activity', notes: '', booking_reference: '',
   })
+  const [submitting, submitItem] = useRequestLock()
+  const [submittingComment, submitCommentAction] = useRequestLock()
   const [commentText, setCommentText] = useState({})
   const [comments, setComments] = useState({})
   const [loadingComments, setLoadingComments] = useState({})
@@ -46,16 +49,16 @@ export default function ItineraryPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    try {
+    await submitItem(async () => {
       await createItem(tripId, form)
       toast.success('Item added')
       setShowAdd(false)
       setForm({ title: '', description: '', date: new Date().toISOString().split('T')[0],
         start_time: '', end_time: '', location: '', type: 'activity', notes: '', booking_reference: '' })
       load()
-    } catch (err) {
+    }).catch((err) => {
       toast.error(err.response?.data?.error?.message || 'Failed')
-    }
+    })
   }
 
   const handleDelete = async (id) => {
@@ -72,14 +75,14 @@ export default function ItineraryPage() {
   const handleComment = async (itemId) => {
     const text = commentText[itemId]?.trim()
     if (!text) return
-    try {
+    await submitCommentAction(async () => {
       await createComment(tripId, { target_type: 'itinerary_item', target_id: itemId, text })
       toast.success('Comment added')
       setCommentText((p) => ({ ...p, [itemId]: '' }))
       loadComments(itemId)
-    } catch (err) {
+    }).catch((err) => {
       toast.error(err.response?.data?.error?.message || 'Failed')
-    }
+    })
   }
 
   const handleDeleteComment = async (itemId, commentId) => {
@@ -212,8 +215,8 @@ export default function ItineraryPage() {
                               />
                               <button onClick={() => handleComment(item._id)}
                                 className="btn-primary text-xs px-3 py-1.5"
-                                disabled={!commentText[item._id]?.trim()}>
-                                Post
+                                disabled={submittingComment || !commentText[item._id]?.trim()}>
+                                {submittingComment ? 'Posting...' : 'Post'}
                               </button>
                             </div>
                           </div>
@@ -281,7 +284,7 @@ export default function ItineraryPage() {
                 value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
               <div className="flex gap-3 justify-end">
                 <button type="button" onClick={() => setShowAdd(false)} className="btn-secondary">Cancel</button>
-                <button type="submit" className="btn-primary">Add Item</button>
+                <button type="submit" disabled={submitting} className="btn-primary">{submitting ? 'Adding Item...' : 'Add Item'}</button>
               </div>
             </form>
           </div>

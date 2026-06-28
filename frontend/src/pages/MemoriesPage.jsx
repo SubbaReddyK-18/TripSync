@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getMemories, createMemory, deleteMemory } from '../api/memories'
 import { createComment, getComments, deleteComment } from '../api/comments'
+import { useRequestLock } from '../hooks/useRequestLock'
 import { uploadFile } from '../upload'
 import { getTrip } from '../api/trips'
 import useAuthStore from '../stores/authStore'
@@ -22,6 +23,7 @@ export default function MemoriesPage() {
   const [caption, setCaption] = useState('')
   const [tags, setTags] = useState('')
   const fileRef = useRef(null)
+  const [submittingComment, submitCommentAction] = useRequestLock()
   const [commentText, setCommentText] = useState({})
   const [comments, setComments] = useState({})
   const [loadingComments, setLoadingComments] = useState({})
@@ -75,8 +77,9 @@ export default function MemoriesPage() {
 
   const handleComment = async (memoryId) => {
     const text = commentText[memoryId]?.trim(); if (!text) return
-    try { await createComment(tripId, { target_type: 'memory', target_id: memoryId, text }); toast.success('Comment added'); setCommentText((p) => ({ ...p, [memoryId]: '' })); loadComments(memoryId) }
-    catch (err) { toast.error(err.response?.data?.error?.message || 'Failed') }
+    await submitCommentAction(async () => {
+      await createComment(tripId, { target_type: 'memory', target_id: memoryId, text }); toast.success('Comment added'); setCommentText((p) => ({ ...p, [memoryId]: '' })); loadComments(memoryId)
+    }).catch((err) => { toast.error(err.response?.data?.error?.message || 'Failed') })
   }
 
   const handleDeleteComment = async (memoryId, commentId) => {
@@ -251,7 +254,7 @@ export default function MemoriesPage() {
                       value={commentText[mem._id] || ''}
                       onChange={(e) => setCommentText((p) => ({ ...p, [mem._id]: e.target.value }))}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleComment(mem._id) }} />
-                    <button onClick={() => handleComment(mem._id)} className="btn-primary text-xs px-3 py-1.5" disabled={!commentText[mem._id]?.trim()}>Post</button>
+                    <button onClick={() => handleComment(mem._id)} className="btn-primary text-xs px-3 py-1.5" disabled={submittingComment || !commentText[mem._id]?.trim()}>{submittingComment ? 'Posting...' : 'Post'}</button>
                   </div>
                 </div>
               </div>

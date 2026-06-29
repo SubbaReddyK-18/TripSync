@@ -16,6 +16,10 @@ def create_expense(trip_id: str, data: dict, user_id: str) -> dict:
     db = get_db()
     require_editor(trip_id, user_id)
 
+    budget = db["budgets"].find_one({"trip_id": ObjectId(trip_id)})
+    if not budget or not budget.get("total_amount"):
+        raise AppError("Add a budget for this trip before creating expenses", "BUDGET_REQUIRED", 400)
+
     paid_by = data["paid_by"]
     if isinstance(paid_by, dict):
         total_paid = 0

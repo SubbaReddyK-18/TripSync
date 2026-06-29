@@ -1012,7 +1012,7 @@ export default function DashboardPage() {
           : 'bg-gradient-to-br from-blue-50/50 via-transparent to-indigo-50/50'
           }`} />
 
-        <div className="absolute top-6 right-6 lg:top-8 lg:right-8 z-20 flex items-center gap-0.5 p-0.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06]">
+        <div className="relative lg:absolute top-0 right-0 lg:top-8 lg:right-8 z-20 flex items-center gap-0.5 p-0.5 rounded-xl bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.04] dark:border-white/[0.06] mb-4 lg:mb-0">
           {VISIBLE_RANGES.map((r) => (
             <button
               key={r.key}

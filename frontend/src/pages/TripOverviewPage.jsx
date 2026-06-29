@@ -548,12 +548,12 @@ export default function TripOverviewPage() {
 
 
   return (
-    <div className="w-full max-w-full px-6 lg:px-8 space-y-6">
+    <div className="w-full max-w-full px-4 sm:px-6 lg:px-8 space-y-6">
       {/* Hero Banner */}
       <div className={`relative overflow-hidden rounded-[32px] bg-gradient-to-br ${getDestinationGradient(activeTrip.destination)} border border-border/60`}>
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-        <div className="relative z-10 p-8 lg:p-10">
-          <div className="flex items-start justify-between">
+        <div className="relative z-10 p-6 sm:p-8 lg:p-10">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
             <div className="max-w-xl">
               <div className="flex items-center gap-3 mb-3">
                 <span className={`badge text-xs font-semibold border ${statusMeta(activeTrip.status).class} bg-white/10 backdrop-blur-md`}>
@@ -587,7 +587,7 @@ export default function TripOverviewPage() {
               </div>
             </div>
             {canEdit && (
-              <div className="flex gap-2 shrink-0">
+              <div className="flex flex-wrap gap-2 shrink-0">
                 <div className="relative" ref={exportRef}>
                   <button onClick={() => setExportOpen(!exportOpen)} disabled={exporting} className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white/20 transition-colors flex items-center gap-1.5 disabled:opacity-50">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

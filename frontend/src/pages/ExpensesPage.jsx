@@ -5,6 +5,7 @@ import { createExpense, deleteExpense } from '../api/expenses'
 import { createComment, getComments, deleteComment } from '../api/comments'
 import { getMembers } from '../api/trips'
 import { getBalanceSheet } from '../api/settlements'
+import { getBudget } from '../api/budgets'
 import { useRequestLock } from '../hooks/useRequestLock'
 import toast from 'react-hot-toast'
 import useAuthStore from '../stores/authStore'
@@ -140,7 +141,17 @@ export default function ExpensesPage() {
     if (expandedId === id) { setExpandedId(null) } else { setExpandedId(id); if (!comments[id]) loadComments(id) }
   }
 
-  const openAddModal = () => {
+  const openAddModal = async () => {
+    try {
+      const { data } = await getBudget(tripId)
+      if (!data?.data?.budget?.total_amount) {
+        toast.error('Add a budget for this trip before creating expenses')
+        return
+      }
+    } catch {
+      toast.error('Add a budget for this trip before creating expenses')
+      return
+    }
     setShowAdd(true); setSelectedMembers(members.map((m) => m.user._id))
     setForm((p) => ({ ...p, paid_by: user?._id || '' }))
     if (members.length === 0) getMembers(tripId).then(({ data }) => { const fm = data.data.members; setMembers(fm); setSelectedMembers(fm.map((m) => m.user._id)) }).catch(() => {})

@@ -45,7 +45,7 @@ def _get_user_trip_ids(user_id):
     return [m["trip_id"] for m in memberships]
 
 
-@_cached("dashboard_overview", ttl=30)
+@_cached(ttl=30)
 def get_overview(user_id, range_type="month", start=None, end=None):
     db = get_db()
     trip_ids = _get_user_trip_ids(user_id)

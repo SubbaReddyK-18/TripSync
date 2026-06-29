@@ -39,6 +39,7 @@ function NavItem({ to, label, icon, end, isDark }) {
     <NavLink
       to={to}
       end={end}
+      onClick={closeOnMobile}
       className={({ isActive }) =>
         `group relative flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
           isActive
@@ -74,6 +75,12 @@ function NavItem({ to, label, icon, end, isDark }) {
   )
 }
 
+function closeOnMobile() {
+  if (window.innerWidth < 1024) {
+    useUiStore.getState().setSidebarOpen(false)
+  }
+}
+
 export default function Sidebar() {
   const { sidebarOpen, setSidebarOpen, systemConfig, isDark } = useUiStore()
   const { user } = useAuthStore()
@@ -88,10 +95,18 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Hover detection strip */}
+      {/* Mobile overlay backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Hover detection strip - desktop only */}
       {!sidebarOpen && (
         <div
-          className="fixed left-0 top-0 h-full w-[5px] z-40 bg-transparent cursor-pointer"
+          className="hidden lg:block fixed left-0 top-0 h-full w-[5px] z-40 bg-transparent cursor-pointer"
           onMouseEnter={() => setSidebarOpen(true)}
         />
       )}
@@ -99,8 +114,9 @@ export default function Sidebar() {
       <aside
         className={`fixed left-0 top-0 h-full w-64 z-50 flex flex-col transition-transform duration-300 ease-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${isDark ? 'text-slate-200' : 'text-slate-800'}`}
-        onMouseLeave={() => setSidebarOpen(false)}
+        } ${isDark ? 'text-slate-200' : 'text-slate-800'}
+        lg:translate-x-0 ${sidebarOpen ? '' : 'lg:-translate-x-full'}`}
+        onMouseLeave={() => { if (window.innerWidth >= 1024) setSidebarOpen(false) }}
         style={{
           backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
           borderRight: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,

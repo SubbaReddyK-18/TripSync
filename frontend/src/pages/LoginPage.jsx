@@ -100,8 +100,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className={`relative min-h-screen font-body overflow-hidden ${isDark ? 'text-white' : 'text-slate-900'}`}>
-      <AnimatedBackground isDark={isDark} portal={activePortal} />
+    <div className={`relative min-h-screen font-body overflow-hidden ${isDark
+      ? 'text-white bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
+      : 'text-slate-900 bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50'}`}>
+      <div className="hidden lg:block"><AnimatedBackground isDark={isDark} portal={activePortal} /></div>
 
       {/* Theme Toggle */}
       <div className="fixed top-6 right-6 z-50">

@@ -1,6 +1,6 @@
 export default function AuthCard({ isDark, children, className = '' }) {
   return (
-    <div className="w-full lg:w-[40%] flex items-center justify-center px-6 lg:px-10 xl:px-14 py-12 relative z-10">
+    <div className="w-full lg:w-[40%] flex items-center justify-center px-6 lg:px-10 xl:px-14 py-6 lg:py-12 relative z-10">
       <div className={`w-full max-w-[420px] ${className}`}>
         <div className={`
           relative overflow-hidden

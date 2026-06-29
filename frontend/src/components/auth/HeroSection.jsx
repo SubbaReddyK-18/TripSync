@@ -108,12 +108,12 @@ export default function HeroSection({ mode = 'login', isDark, portal = 'user' })
   const tagline = isAdmin ? adminTagline : isLogin ? userTagline : regTagline
 
   return (
-    <div className="w-full lg:w-[60%] flex flex-col justify-center px-8 lg:px-16 xl:px-24 py-12 relative z-10">
-      <Logo size="lg" isDark={isDark} isAdmin={isAdmin} className="mb-12 lg:mb-16" />
+    <div className="w-full lg:w-[60%] flex flex-col justify-center px-8 lg:px-16 xl:px-24 py-6 lg:py-12 relative z-10">
+      <Logo size="lg" isDark={isDark} isAdmin={isAdmin} className="mb-4 lg:mb-16" />
 
 
       {/* Hero Typography - Apple-style hierarchy */}
-      <div className="mb-10 lg:mb-14">
+      <div className="mb-4 lg:mb-14">
         <h1 className={`font-heading font-bold leading-[1.05] tracking-[-0.03em] mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}
           style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)' }}>
           {tagline[0]}
@@ -131,7 +131,7 @@ export default function HeroSection({ mode = 'login', isDark, portal = 'user' })
 
 
       {/* Feature Highlights */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 mb-12 max-w-lg">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 mb-4 lg:mb-12 max-w-lg">
         {(isAdmin ? ADMIN_FEATURES : FEATURES).map((feature, i) => (
           <div
             key={i}

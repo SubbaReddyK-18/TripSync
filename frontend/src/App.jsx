@@ -1,27 +1,28 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import useAuthStore from './stores/authStore'
 import useUiStore from './stores/uiStore'
 import Layout from './components/layout/Layout'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import DashboardPage from './pages/DashboardPage'
-import TripsPage from './pages/TripsPage'
-import TripOverviewPage from './pages/TripOverviewPage'
-import ExpensesPage from './pages/ExpensesPage'
-import SettlementsPage from './pages/SettlementsPage'
-import BudgetPage from './pages/BudgetPage'
-import ItineraryPage from './pages/ItineraryPage'
-import PlacesPage from './pages/PlacesPage'
-import SettingsPage from './pages/SettingsPage'
-import ActivityHistoryPage from './pages/ActivityHistoryPage'
-import AdminActivityLogsPage from './pages/AdminActivityLogsPage'
-import AdminConfigPage from './pages/AdminConfigPage'
-import AdminUserManagementPage from './pages/AdminUserManagementPage'
-import OtpVerificationPage from './pages/OtpVerificationPage'
 import { connectSocket, disconnectSocket, joinTripRoom, leaveTripRoom, onTripEvent, offTripEvent, getSocket } from './services/socket'
 import toast from 'react-hot-toast'
+
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const RegisterPage = lazy(() => import('./pages/RegisterPage'))
+const DashboardPage = lazy(() => import('./pages/DashboardPage'))
+const TripsPage = lazy(() => import('./pages/TripsPage'))
+const TripOverviewPage = lazy(() => import('./pages/TripOverviewPage'))
+const ExpensesPage = lazy(() => import('./pages/ExpensesPage'))
+const SettlementsPage = lazy(() => import('./pages/SettlementsPage'))
+const BudgetPage = lazy(() => import('./pages/BudgetPage'))
+const ItineraryPage = lazy(() => import('./pages/ItineraryPage'))
+const PlacesPage = lazy(() => import('./pages/PlacesPage'))
+const SettingsPage = lazy(() => import('./pages/SettingsPage'))
+const ActivityHistoryPage = lazy(() => import('./pages/ActivityHistoryPage'))
+const AdminActivityLogsPage = lazy(() => import('./pages/AdminActivityLogsPage'))
+const AdminConfigPage = lazy(() => import('./pages/AdminConfigPage'))
+const AdminUserManagementPage = lazy(() => import('./pages/AdminUserManagementPage'))
+const OtpVerificationPage = lazy(() => import('./pages/OtpVerificationPage'))
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, isLoading } = useAuthStore()
@@ -319,6 +320,7 @@ export default function App() {
     <>
       <WelcomeOverlay />
       <SocketManager />
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-primary"><div className="w-8 h-8 rounded-full border-2 border-accent-indigo border-t-transparent animate-spin" /></div>}>
       <Routes>
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
@@ -342,6 +344,7 @@ export default function App() {
 
         <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />} />
       </Routes>
+      </Suspense>
     </>
   )
 }

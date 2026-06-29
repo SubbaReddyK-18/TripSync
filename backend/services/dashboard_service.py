@@ -1,6 +1,24 @@
+import time
 from datetime import datetime, timezone, timedelta
 from bson.objectid import ObjectId
 from config.database import get_db
+
+_cache = {}
+_cache_ttl = {}
+
+def _cached(ttl=30):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            key = f"{func.__name__}:{args[0]}:{kwargs.get('range_type', args[1] if len(args) > 1 else 'month')}"
+            now = time.monotonic()
+            if key in _cache and now - _cache_ttl.get(key, 0) < ttl:
+                return _cache[key]
+            result = func(*args, **kwargs)
+            _cache[key] = result
+            _cache_ttl[key] = now
+            return result
+        return wrapper
+    return decorator
 
 
 def _get_time_range(range_type, start=None, end=None):
@@ -27,6 +45,7 @@ def _get_user_trip_ids(user_id):
     return [m["trip_id"] for m in memberships]
 
 
+@_cached("dashboard_overview", ttl=30)
 def get_overview(user_id, range_type="month", start=None, end=None):
     db = get_db()
     trip_ids = _get_user_trip_ids(user_id)

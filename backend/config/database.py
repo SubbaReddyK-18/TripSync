@@ -9,8 +9,7 @@ db = None
 def init_db(uri: str):
     global client, db
     try:
-        # Increased pool size for concurrent requests on Render
-        client = MongoClient(uri, maxPoolSize=50, serverSelectionTimeoutMS=5000)
+        client = MongoClient(uri, maxPoolSize=10, serverSelectionTimeoutMS=5000, connectTimeoutMS=3000, socketTimeoutMS=30000)
         client.admin.command("ping")
     except ConnectionFailure:
         raise RuntimeError("Failed to connect to MongoDB")

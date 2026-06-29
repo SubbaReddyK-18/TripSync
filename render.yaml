@@ -1,0 +1,43 @@
+services:
+  - type: web
+    runtime: static
+    name: tripsync-frontend
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false
+      - key: VITE_API_URL
+        sync: false
+
+  - type: web
+    name: tripsync-backend
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 4 -b 0.0.0.0:$PORT app:app
+    healthCheckPath: /api/health
+    envVars:
+      - key: FLASK_ENV
+        sync: false
+      - key: MONGO_URI
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: MAIL_FROM
+        sync: false

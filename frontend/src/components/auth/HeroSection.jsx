@@ -131,7 +131,7 @@ export default function HeroSection({ mode = 'login', isDark, portal = 'user' })
 
 
       {/* Feature Highlights */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 mb-4 lg:mb-12 max-w-lg">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-3 mb-4 lg:mb-12 max-w-lg">
         {(isAdmin ? ADMIN_FEATURES : FEATURES).map((feature, i) => (
           <div
             key={i}

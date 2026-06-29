@@ -114,8 +114,7 @@ export default function Sidebar() {
       <aside
         className={`fixed left-0 top-0 h-full w-64 z-50 flex flex-col transition-transform duration-300 ease-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${isDark ? 'text-slate-200' : 'text-slate-800'}
-        lg:translate-x-0 ${sidebarOpen ? '' : 'lg:-translate-x-full'}`}
+        } ${isDark ? 'text-slate-200' : 'text-slate-800'}`}
         onMouseLeave={() => { if (window.innerWidth >= 1024) setSidebarOpen(false) }}
         style={{
           backgroundColor: isDark ? '#0F172A' : '#FFFFFF',

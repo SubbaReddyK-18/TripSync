@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Logo from '../layout/Logo'
 
-const FEATURES = [
+export const FEATURES = [
   {
     icon: (
       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -57,7 +57,7 @@ const FEATURES = [
   },
 ]
 
-const ADMIN_FEATURES = [
+export const ADMIN_FEATURES = [
   {
     icon: (
       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -98,7 +98,7 @@ const ADMIN_FEATURES = [
   },
 ]
 
-export default function HeroSection({ mode = 'login', isDark, portal = 'user' }) {
+export default function HeroSection({ mode = 'login', isDark, portal = 'user', showFeatures = true }) {
   const isLogin = mode === 'login'
   const isAdmin = portal === 'admin'
   const trustData = { users: '4+', trips: '1+', auth: '100% Secure' }
@@ -108,22 +108,22 @@ export default function HeroSection({ mode = 'login', isDark, portal = 'user' })
   const tagline = isAdmin ? adminTagline : isLogin ? userTagline : regTagline
 
   return (
-    <div className="w-full lg:w-[60%] flex flex-col justify-center px-8 lg:px-16 xl:px-24 py-6 lg:py-12 relative z-10">
-      <Logo size="lg" isDark={isDark} isAdmin={isAdmin} className="mb-4 lg:mb-16" />
+    <div className="w-full lg:w-[60%] flex flex-col justify-center px-6 lg:px-16 xl:px-24 py-4 lg:py-12 relative z-10">
+      <Logo size="md" isDark={isDark} isAdmin={isAdmin} className="mb-3 lg:mb-12" />
 
 
       {/* Hero Typography - Apple-style hierarchy */}
-      <div className="mb-4 lg:mb-14">
-        <h1 className={`font-heading font-bold leading-[1.05] tracking-[-0.03em] mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}
-          style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)' }}>
+      <div className="mb-3 lg:mb-10">
+        <h1 className={`font-heading font-bold leading-[1.05] tracking-[-0.03em] mb-1 lg:mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}
+          style={{ fontSize: 'clamp(2.4rem, 5vw, 4.2rem)' }}>
           {tagline[0]}
         </h1>
-        <h2 className={`font-heading font-semibold leading-[1.1] tracking-[-0.02em] mb-2 ${isDark ? 'text-slate-300' : 'text-slate-500'}`}
-          style={{ fontSize: 'clamp(2.4rem, 5vw, 4.2rem)' }}>
+        <h2 className={`font-heading font-semibold leading-[1.1] tracking-[-0.02em] mb-1 lg:mb-2 ${isDark ? 'text-slate-300' : 'text-slate-500'}`}
+          style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
           {tagline[1]}
         </h2>
         <h3 className={`font-heading font-medium leading-[1.15] tracking-[-0.01em] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}
-          style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
+          style={{ fontSize: 'clamp(1.7rem, 3.5vw, 3rem)' }}>
           {tagline[2]}
         </h3>
       </div>
@@ -131,6 +131,7 @@ export default function HeroSection({ mode = 'login', isDark, portal = 'user' })
 
 
       {/* Feature Highlights */}
+      {showFeatures && (
       <div className="grid grid-cols-2 gap-x-6 gap-y-3 mb-4 lg:mb-12 max-w-lg">
         {(isAdmin ? ADMIN_FEATURES : FEATURES).map((feature, i) => (
           <div
@@ -156,6 +157,7 @@ export default function HeroSection({ mode = 'login', isDark, portal = 'user' })
           </div>
         ))}
       </div>
+      )}
 
 
     </div>

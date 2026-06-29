@@ -6,7 +6,7 @@ import useUiStore from '../stores/uiStore'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import AnimatedBackground from '../components/auth/AnimatedBackground'
-import HeroSection from '../components/auth/HeroSection'
+import HeroSection, { FEATURES, ADMIN_FEATURES } from '../components/auth/HeroSection'
 import AuthCard from '../components/auth/AuthCard'
 
 export default function LoginPage() {
@@ -133,7 +133,7 @@ export default function LoginPage() {
       {/* Split Layout */}
       <div className="min-h-screen flex flex-col lg:flex-row">
         {/* Left - Hero Section */}
-        <HeroSection mode="login" isDark={isDark} portal={activePortal} />
+        <HeroSection mode="login" isDark={isDark} portal={activePortal} showFeatures={false} />
 
         {/* Right - Auth Card */}
         <AuthCard isDark={isDark}>
@@ -510,6 +510,25 @@ export default function LoginPage() {
             )}
           </AnimatePresence>
         </AuthCard>
+      </div>
+
+      {/* Features Footer */}
+      <div className={`lg:hidden px-6 pb-8 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+        <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto mb-6">
+          {(activePortal === 'admin' ? ADMIN_FEATURES : FEATURES).map((feature, i) => (
+            <div key={i} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-100/50'}`}>
+              <span className={`shrink-0 w-6 h-6 rounded-lg flex items-center justify-center text-xs ${
+                isDark
+                  ? activePortal === 'admin' ? 'text-accent-indigo bg-accent-indigo/10' : 'text-accent-blue bg-accent-blue/10'
+                  : activePortal === 'admin' ? 'text-indigo-600 bg-indigo-50' : 'text-blue-600 bg-blue-50'
+              }`}>
+                {feature.icon}
+              </span>
+              <span className="text-xs font-medium">{feature.label}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-center text-xs text-text-muted">© TripSync</p>
       </div>
     </div>
   )

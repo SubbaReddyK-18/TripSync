@@ -89,23 +89,11 @@ export default function TripsPage() {
     upcoming.sort(sortFn)
     completed.sort(sortFn)
 
-    const result = []
-    let takeOngoing = Math.min(ongoing.length, 3)
-    for (let i = 0; i < takeOngoing; i++) result.push({ ...ongoing[i], _category: 'ongoing' })
-
-    if (result.length < 3) {
-      const remaining = 3 - result.length
-      let takeUpcoming = Math.min(upcoming.length, remaining)
-      for (let i = 0; i < takeUpcoming; i++) result.push({ ...upcoming[i], _category: 'upcoming' })
-    }
-
-    if (result.length < 3) {
-      const remaining = 3 - result.length
-      let takeCompleted = Math.min(completed.length, remaining)
-      for (let i = 0; i < takeCompleted; i++) result.push({ ...completed[i], _category: 'completed' })
-    }
-
-    return result
+    return [
+      ...ongoing.map((t) => ({ ...t, _category: 'ongoing' })),
+      ...upcoming.map((t) => ({ ...t, _category: 'upcoming' })),
+      ...completed.map((t) => ({ ...t, _category: 'completed' })),
+    ]
   }, [trips, sortOrder])
 
   const containerVariants = {
@@ -191,6 +179,7 @@ export default function TripsPage() {
           {displayTrips.map((trip) => {
             const status = statusConfig[trip._category]
             const gradient = getDestinationGradient(trip.destination)
+            if (!status) return null
             return (
               <motion.div
                 key={trip._id}

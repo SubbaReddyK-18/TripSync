@@ -168,7 +168,7 @@ export default function TripOverviewPage() {
               </Link>
             </div>
             {expenses.length === 0 ? (
-              <div className="card text-center py-12">
+              <div className="card text-center py-8 lg:py-12">
                 <div className="w-14 h-14 rounded-2xl bg-accent-amber/10 flex items-center justify-center mx-auto mb-3 text-2xl">💸</div>
                 <p className="text-text-muted font-medium">No expenses yet</p>
               </div>
@@ -245,7 +245,7 @@ export default function TripOverviewPage() {
                 </div>
               </div>
             ) : (
-              <div className="card text-center py-12">
+              <div className="card text-center py-8 lg:py-12">
                 <div className="w-14 h-14 rounded-2xl bg-accent-amber/10 flex items-center justify-center mx-auto mb-3 text-2xl">📊</div>
                 <p className="text-text-muted font-medium mb-4">No budget configured yet</p>
                 <Link to={`/trips/${tripId}/budget`} className="btn-primary text-sm">Set Budget</Link>
@@ -288,7 +288,7 @@ export default function TripOverviewPage() {
               </Link>
             </div>
             {places.length === 0 ? (
-              <div className="card text-center py-12">
+              <div className="card text-center py-8 lg:py-12">
                 <div className="w-14 h-14 rounded-2xl bg-accent-amber/10 flex items-center justify-center mx-auto mb-3 text-2xl">📍</div>
                 <p className="text-text-muted font-medium">No places recorded yet</p>
               </div>
@@ -328,16 +328,16 @@ export default function TripOverviewPage() {
                 {balanceSheet.slice(0, 6).map((entry) => {
                   const isPositive = entry.balance > 0; const isZero = entry.balance === 0
                   return (
-                    <div key={entry.user_id} className={`card flex items-center justify-between p-4 ${isPositive ? 'border-accent-green/20' : isZero ? '' : 'border-accent-red/20'}`}>
-                      <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
+                    <div key={entry.user_id} className={`card flex items-center justify-between gap-2 p-3 lg:p-4 ${isPositive ? 'border-accent-green/20' : isZero ? '' : 'border-accent-red/20'}`}>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
                           isPositive ? 'bg-accent-green/15 text-accent-green' : isZero ? 'bg-text-muted/10 text-text-muted' : 'bg-accent-red/15 text-accent-red'
                         }`}>
                           {entry.full_name?.charAt(0)}
                         </div>
-                        <span className="text-sm font-medium text-text-primary">{you(user?._id, entry.user_id, entry.full_name)}</span>
+                        <span className="text-sm font-medium text-text-primary truncate">{you(user?._id, entry.user_id, entry.full_name)}</span>
                       </div>
-                      <span className={`font-mono text-sm font-bold ${isPositive ? 'text-accent-green' : isZero ? 'text-text-muted' : 'text-accent-red'}`}>
+                      <span className={`font-mono text-sm font-bold shrink-0 whitespace-nowrap ${isPositive ? 'text-accent-green' : isZero ? 'text-text-muted' : 'text-accent-red'}`}>
                         {isPositive ? '+' : ''}{isZero ? '₹0.00' : `₹${(Math.abs(entry.balance) / 100).toFixed(2)}`}
                         {!isZero && (isPositive ? ' (to receive)' : ' (owes)')}
                       </span>
@@ -346,7 +346,7 @@ export default function TripOverviewPage() {
                 })}
               </div>
             ) : (
-              <div className="card text-center py-12">
+              <div className="card text-center py-8 lg:py-12">
                 <div className="w-14 h-14 rounded-2xl bg-accent-green/10 flex items-center justify-center mx-auto mb-3 text-2xl">💰</div>
                 <p className="text-text-muted font-medium">No settlements yet</p>
               </div>
@@ -370,14 +370,14 @@ export default function TripOverviewPage() {
         </Link>
       </div>
       {!budgetHealth.budget ? (
-        <div className="text-center py-6 space-y-3">
+        <div className="text-center py-4 lg:py-6 space-y-3">
           <p className="text-sm text-text-secondary font-medium">No budget configured for this trip yet.</p>
           <Link to={`/trips/${tripId}/budget`} className="btn-primary text-xs font-semibold inline-block py-1.5 px-4 shadow-sm">Configure Budget</Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 items-center">
           <div className="space-y-2">
-            <div className={`text-2xl font-bold ${
+            <div className={`text-xl lg:text-2xl font-bold ${
               budgetHealth.health === 'over_budget' ? 'text-accent-red' :
               budgetHealth.health === 'at_budget' ? 'text-accent-amber' :
               budgetHealth.health === 'near_limit' ? 'text-accent-amber' : 'text-accent-green'
@@ -395,7 +395,7 @@ export default function TripOverviewPage() {
               <span>Usage</span>
               <span>{budgetHealth.percentage_used}%</span>
             </div>
-            <div className="w-full bg-primary-lighter rounded-full h-3 border border-border-light overflow-hidden">
+            <div className="w-full bg-primary-lighter rounded-full h-2 lg:h-3 border border-border-light overflow-hidden">
               <div className={`h-full rounded-full transition-all duration-500 ${
                 budgetHealth.health === 'over_budget' ? 'bg-accent-red' :
                 budgetHealth.health === 'at_budget' ? 'bg-accent-amber' :
@@ -423,14 +423,14 @@ export default function TripOverviewPage() {
         {balanceSheet.map((entry) => {
           const isPositive = entry.balance > 0; const isZero = entry.balance === 0
           return (
-            <div key={entry.user_id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-primary-lighter/30 border border-border/20">
-              <div className="flex items-center gap-2.5">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+            <div key={entry.user_id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-primary-lighter/30 border border-border/20 gap-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                   isPositive ? 'bg-accent-green/15 text-accent-green' : isZero ? 'bg-text-muted/10 text-text-muted' : 'bg-accent-red/15 text-accent-red'
                 }`}>{entry.full_name?.charAt(0)}</div>
-                <span className="text-sm font-medium text-text-primary">{you(user?._id, entry.user_id, entry.full_name)}</span>
+                <span className="text-sm font-medium text-text-primary truncate">{you(user?._id, entry.user_id, entry.full_name)}</span>
               </div>
-              <span className={`font-mono text-sm font-bold ${isPositive ? 'text-accent-green' : isZero ? 'text-text-muted' : 'text-accent-red'}`}>
+              <span className={`font-mono text-sm font-bold shrink-0 whitespace-nowrap ${isPositive ? 'text-accent-green' : isZero ? 'text-text-muted' : 'text-accent-red'}`}>
                 {isPositive ? '+' : ''}{isZero ? '₹0.00' : `₹${(Math.abs(entry.balance) / 100).toFixed(2)}`}
                 {!isZero && (isPositive ? ' (to receive)' : ' (owes)')}
               </span>
@@ -483,7 +483,7 @@ export default function TripOverviewPage() {
         )}
       </div>
       {activity.length === 0 ? (
-        <div className="text-center py-8">
+        <div className="text-center py-6 lg:py-8">
           <div className="w-10 h-10 rounded-xl bg-primary-lighter flex items-center justify-center mx-auto mb-2">
             <svg className="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -495,7 +495,7 @@ export default function TripOverviewPage() {
       ) : (
         <div className="relative">
           <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-border-light/60" />
-          <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
+          <div className="space-y-3 max-h-[360px] lg:max-h-[520px] overflow-y-auto pr-1">
             {activity.slice(0, 30).map((a) => {
               const actIcon = getActivityIcon(a.description)
               return (
@@ -552,10 +552,10 @@ export default function TripOverviewPage() {
       {/* Hero Banner */}
       <div className={`relative overflow-hidden rounded-[32px] bg-gradient-to-br ${getDestinationGradient(activeTrip.destination)} border border-border/60`}>
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-        <div className="relative z-10 p-6 sm:p-8 lg:p-10">
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+        <div className="relative z-10 p-4 sm:p-6 lg:p-10">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2 lg:gap-4">
             <div className="max-w-xl">
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-3 mb-1.5 lg:mb-3">
                 <span className={`badge text-xs font-semibold border ${statusMeta(activeTrip.status).class} bg-white/10 backdrop-blur-md`}>
                   {statusMeta(activeTrip.status).label}
                 </span>
@@ -563,23 +563,23 @@ export default function TripOverviewPage() {
               </div>
               <h1 className="text-h2 lg:text-display-lg text-white font-bold drop-shadow-sm">{activeTrip.title}</h1>
               {activeTrip.destination && (
-                <p className="text-lg text-white/90 font-medium flex items-center gap-2 mt-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <p className="text-base lg:text-lg text-white/90 font-medium flex items-center gap-2 mt-1 lg:mt-2">
+                  <svg className="w-4 h-4 lg:w-5 lg:h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   {activeTrip.destination}
                 </p>
               )}
-              <div className="flex items-center gap-4 mt-4 text-sm text-white/70">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 lg:gap-4 mt-2 lg:mt-4 text-xs sm:text-sm text-white/70">
                 <div className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   {activeTrip.start_date ? new Date(activeTrip.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Asia/Kolkata' }) : 'Start'} - {activeTrip.end_date ? new Date(activeTrip.end_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Asia/Kolkata' }) : 'End'}
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                   </svg>
                   {members.length} member{members.length !== 1 ? 's' : ''}
@@ -587,9 +587,9 @@ export default function TripOverviewPage() {
               </div>
             </div>
             {canEdit && (
-              <div className="flex flex-wrap gap-2 shrink-0">
+              <div className="flex flex-wrap gap-1.5 lg:gap-2 shrink-0">
                 <div className="relative" ref={exportRef}>
-                  <button onClick={() => setExportOpen(!exportOpen)} disabled={exporting} className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white/20 transition-colors flex items-center gap-1.5 disabled:opacity-50">
+                  <button onClick={() => setExportOpen(!exportOpen)} disabled={exporting} className="px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs lg:text-sm font-semibold hover:bg-white/20 transition-colors flex items-center gap-1.5 disabled:opacity-50">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
@@ -614,14 +614,14 @@ export default function TripOverviewPage() {
                 </div>
                 {isAdmin && (
                   <>
-                    <button onClick={handleRegenCode} disabled={regenerating} className="px-4 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white/20 transition-colors flex items-center gap-1.5 disabled:opacity-50">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button onClick={handleRegenCode} disabled={regenerating} className="px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs lg:text-sm font-semibold hover:bg-white/20 transition-colors flex items-center gap-1.5 disabled:opacity-50">
+                      <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
                       Regenerate
                     </button>
-                    <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 rounded-xl bg-accent-red/20 backdrop-blur-md border border-accent-red/30 text-white text-sm font-semibold hover:bg-accent-red/30 transition-colors flex items-center gap-1.5 disabled:opacity-50">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button onClick={handleDelete} disabled={deleting} className="px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl bg-accent-red/20 backdrop-blur-md border border-accent-red/30 text-white text-xs lg:text-sm font-semibold hover:bg-accent-red/30 transition-colors flex items-center gap-1.5 disabled:opacity-50">
+                      <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                       Delete
@@ -635,7 +635,7 @@ export default function TripOverviewPage() {
       </div>
 
       {/* Quick Stats */}
-      <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 ${
+      <div className={`grid grid-cols-2 sm:grid-cols-3 gap-2 lg:gap-3 ${
         stats.length === 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-6'
       }`}>
         {stats.map((stat) => {
@@ -644,23 +644,23 @@ export default function TripOverviewPage() {
             <button
               key={stat.id}
               onClick={() => setActiveTab(stat.id)}
-              className={`card !p-4 transition-all duration-200 group w-full text-left ${
+              className={`card !p-3 lg:!p-4 transition-all duration-200 group w-full text-left ${
                 isActive
                   ? 'ring-2 ring-accent-green border-accent-green/50 shadow-elevated'
                   : 'hover:shadow-elevated'
               }`}
             >
-              <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200 ${
+              <div className="flex items-center gap-2 lg:gap-3 min-w-0">
+                <div className={`w-8 h-8 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200 ${
                   isActive ? 'bg-accent-green text-white' : 'bg-accent-green/10 text-accent-green'
                 }`}>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={stat.icon} />
                   </svg>
                 </div>
-                <div>
-                  <p className="text-lg font-bold font-mono text-text-primary">{stat.value}</p>
-                  <p className={`text-xs font-medium ${isActive ? 'text-accent-green' : 'text-text-muted'}`}>{stat.label}</p>
+                <div className="min-w-0">
+                  <p className="text-base lg:text-lg font-bold font-mono text-text-primary truncate">{stat.value}</p>
+                  <p className={`text-[11px] lg:text-xs font-medium truncate ${isActive ? 'text-accent-green' : 'text-text-muted'}`}>{stat.label}</p>
                 </div>
               </div>
             </button>

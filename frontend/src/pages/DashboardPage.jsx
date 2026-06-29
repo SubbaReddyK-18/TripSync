@@ -100,12 +100,12 @@ function StatCard({ icon, value, label, trend, color, isDark }) {
     <motion.div
       whileHover={{ y: -6, scale: 1.02 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className={`relative overflow-hidden rounded-3xl p-6 transition-all duration-300 ${isDark
+      className={`relative overflow-hidden rounded-3xl p-4 lg:p-6 transition-all duration-300 ${isDark
         ? 'bg-[#111827] border border-white/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.2)]'
         : 'bg-white border border-slate-200/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
         }`}
     >
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start justify-between mb-2 lg:mb-3">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? `bg-${color}/10` : `bg-${color}/5`
           }`}
           style={{ backgroundColor: isDark ? `${color}15` : `${color}10` }}
@@ -278,7 +278,7 @@ export default function DashboardPage() {
 
   // Hour-based greeting
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+  const greeting = hour >= 5 && hour < 12 ? '🌅 Good morning' : hour >= 12 && hour < 17 ? '☀️ Good afternoon' : '🌆 Good evening'
   const userName = user?.full_name?.split(' ')[0] || user?.username || 'there'
 
   useEffect(() => {
@@ -287,6 +287,7 @@ export default function DashboardPage() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  
   useEffect(() => {
     if (user?.role === 'admin') {
       setAnalyticsLoading(true)
@@ -696,7 +697,7 @@ export default function DashboardPage() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="w-full max-w-full space-y-8"
+      className="w-full max-w-full space-y-5 lg:space-y-8"
       >
         {/* Hero Section */}
         <div className={`relative overflow-hidden rounded-[32px] p-8 lg:p-10 ${isDark
@@ -861,13 +862,13 @@ export default function DashboardPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className={`rounded-2xl p-6 transition-colors ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'
+                  className={`rounded-2xl p-4 lg:p-6 transition-colors ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'
                     }`}
                 >
                   <h3 className={`text-sm font-heading font-semibold mb-5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     Trip Creation Trends
                   </h3>
-                  <ResponsiveContainer width="100%" height={220}>
+                  <div className="h-[150px] lg:h-[220px]"><ResponsiveContainer width="100%" height="100%">
                     <BarChart data={adminAnalytics.trips_per_month}>
                       <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} />
                       <XAxis dataKey="label" stroke={isDark ? '#475569' : '#94a3b8'} fontSize={11} />
@@ -879,7 +880,7 @@ export default function DashboardPage() {
                       }} />
                       <Bar dataKey="count" radius={[6, 6, 0, 0]} fill="#6366F1" animationBegin={200} animationDuration={800} />
                     </BarChart>
-                  </ResponsiveContainer>
+                  </ResponsiveContainer></div>
                 </motion.div>
               )}
 
@@ -894,7 +895,7 @@ export default function DashboardPage() {
                   <h3 className={`text-sm font-heading font-semibold mb-5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     Expense Category Distribution
                   </h3>
-                  <ResponsiveContainer width="100%" height={280}>
+                  <div className="h-[200px] lg:h-[280px]"><ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={adminAnalytics.expense_category_distribution}
@@ -920,7 +921,7 @@ export default function DashboardPage() {
                         }}
                       />
                     </PieChart>
-                  </ResponsiveContainer>
+                  </ResponsiveContainer></div>
                   <div className="mt-3 space-y-1.5">
                     {adminAnalytics.expense_category_distribution.map((entry, i) => (
                       <div key={entry.category} className={`flex items-center justify-between px-1 py-1 rounded-lg ${isDark ? 'hover:bg-white/[0.02]' : 'hover:bg-slate-50'
@@ -943,13 +944,13 @@ export default function DashboardPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className={`rounded-2xl p-6 transition-colors ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'
+                  className={`rounded-2xl p-4 lg:p-6 transition-colors ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'
                     }`}
                 >
                   <h3 className={`text-sm font-heading font-semibold mb-5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     Expense Volume Trends
                   </h3>
-                  <ResponsiveContainer width="100%" height={220}>
+                  <div className="h-[150px] lg:h-[220px]"><ResponsiveContainer width="100%" height="100%">
                     <LineChart data={adminAnalytics.monthly_expense_volume.map((d) => ({ ...d, total: d.total / 100 }))}>
                       <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} />
                       <XAxis dataKey="label" stroke={isDark ? '#475569' : '#94a3b8'} fontSize={11} />
@@ -971,7 +972,7 @@ export default function DashboardPage() {
                         animationDuration={1000}
                       />
                     </LineChart>
-                  </ResponsiveContainer>
+                  </ResponsiveContainer></div>
                 </motion.div>
               )}
             </div>
@@ -1003,7 +1004,7 @@ export default function DashboardPage() {
       className="w-full max-w-full space-y-8"
     >
       {/* ====== ROW 1: HERO SECTION ====== */}
-      <div className={`relative overflow-hidden rounded-[32px] p-8 lg:p-10 backdrop-blur-sm ${isDark
+      <div className={`relative overflow-hidden rounded-[32px] p-5 lg:p-10 backdrop-blur-sm ${isDark
         ? 'bg-[#111827]/90 border border-white/[0.06]'
         : 'bg-white/90 border border-slate-200/60 shadow-sm'
         }`}>
@@ -1062,7 +1063,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 lg:gap-8">
           <div className="space-y-3 max-w-xl">
             <h1 className={`text-4xl sm:text-5xl font-heading font-bold tracking-tight leading-[1.1] ${isDark ? 'text-white' : 'text-slate-900'}`}>
               {greeting}, {userName} 👋
@@ -1074,7 +1075,7 @@ export default function DashboardPage() {
               {range === 'day' ? `${rangeCaption} — ${activeTripsFiltered} active trip${activeTripsFiltered !== 1 ? 's' : ''}` : `${rangeCaption} overview`}
             </p>
 
-            <div className="flex flex-wrap gap-3 pt-2">
+            <div className="flex flex-wrap gap-3 pt-1 lg:pt-2">
               {systemConfig.enableTrips && (
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -1115,7 +1116,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className={`text-center rounded-2xl p-6 min-w-[160px] ${isDark ? 'bg-white/[0.04] border border-white/[0.06]' : 'bg-slate-50/50 border border-slate-200/60'}`}
+              className={`text-center rounded-2xl p-4 lg:p-6 min-w-[160px] ${isDark ? 'bg-white/[0.04] border border-white/[0.06]' : 'bg-slate-50/50 border border-slate-200/60'}`}
             >
               <p className={`text-[11px] font-semibold uppercase tracking-widest mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                 Active Trips
@@ -1153,12 +1154,12 @@ export default function DashboardPage() {
           {range === 'day' && (
             <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-6">
               {/* Spending Trend */}
-              <div className={`rounded-3xl p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+              <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
                 <h3 className={`text-sm font-heading font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   Spending Trend
                 </h3>
                 {((spendingTrendEntries.data || []).some((e) => e.total > 0)) ? (
-                  <ResponsiveContainer width="100%" height={300}>
+                  <div className="h-[200px] lg:h-[300px]"><ResponsiveContainer width="100%" height="100%">
                     <LineChart data={spendingTrendEntries.data}>
                       <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} />
                       <XAxis dataKey="label" stroke={isDark ? '#475569' : '#94a3b8'} fontSize={11} />
@@ -1172,9 +1173,9 @@ export default function DashboardPage() {
                         dot={{ fill: isDark ? '#06B6D4' : '#6366F1', strokeWidth: 0, r: 3 }}
                         animationBegin={400} animationDuration={1000} />
                     </LineChart>
-                  </ResponsiveContainer>
+                  </ResponsiveContainer></div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12">
+                  <div className="flex flex-col items-center justify-center py-6 lg:py-12">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-3 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
                       📊
                     </div>
@@ -1182,21 +1183,21 @@ export default function DashboardPage() {
                     <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Add expenses to see your hourly trend.</p>
                   </div>
                 )}
-                {spendingTrendSummary && (
-                  <div className={`mt-4 pt-4 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
-                    <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
-                      <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Highest Single Expense</p>
-                      <p className={`text-sm font-bold mt-2 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                        {topExpense?.title || topExpense?.category || '—'}
-                        <span className={`text-xs font-mono ml-1.5 ${isDark ? 'text-accent-green' : 'text-green-600'}`}> - ₹{(topExpense?.amount || 0).toLocaleString('en-IN')}</span>
-                      </p>
+                  {spendingTrendSummary && (
+                    <div className={`mt-4 pt-4 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
+                      <div className={`p-2 lg:p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                        <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Highest Single Expense</p>
+                        <p className={`text-sm font-bold mt-2 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          {topExpense?.title || topExpense?.category || '—'}
+                          <span className={`text-xs font-mono ml-1.5 ${isDark ? 'text-accent-green' : 'text-green-600'}`}> - ₹{(topExpense?.amount || 0).toLocaleString('en-IN')}</span>
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
 
-              {/* My Trips */}
-              <MyTripsCard
+                {/* My Trips */}
+                <MyTripsCard
                 trips={trips}
                 tripsLoading={tripsLoading}
                 displayTrips={getDisplayTrips()}
@@ -1210,7 +1211,7 @@ export default function DashboardPage() {
 
           {/* WEEK: [Expense Distribution 50%] [Spending Trend 50%] */}
           {range === 'week' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               {/* Expense Distribution */}
               {categoryChartEntries.length > 0 ? (
                 <div className={`rounded-3xl p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
@@ -1261,13 +1262,13 @@ export default function DashboardPage() {
               )}
 
               {/* Spending Trend */}
-              <div className={`rounded-3xl p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+              <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
                 <h3 className={`text-sm font-heading font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   Spending Trend
                 </h3>
                 {((spendingTrendEntries.data || []).some((e) => e.total > 0)) ? (
                   <>
-                    <ResponsiveContainer width="100%" height={300}>
+                    <div className="h-[200px] lg:h-[300px]"><ResponsiveContainer width="100%" height="100%">
                       <LineChart data={spendingTrendEntries.data}>
                         <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} />
                         <XAxis dataKey="label" stroke={isDark ? '#475569' : '#94a3b8'} fontSize={11} />
@@ -1277,29 +1278,29 @@ export default function DashboardPage() {
                           dot={{ fill: isDark ? '#06B6D4' : '#6366F1', strokeWidth: 0, r: 3 }}
                           animationBegin={400} animationDuration={1000} />
                       </LineChart>
-                    </ResponsiveContainer>
+                    </ResponsiveContainer></div>
                     {spendingTrendSummary && (
-                      <div className={`mt-8 pt-6 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                      <div className={`mt-4 lg:mt-8 pt-4 lg:pt-6 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
+                        <div className="grid grid-cols-2 gap-2 lg:gap-3">
+                          <div className={`p-2 lg:p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Highest Spending Day</p>
                             <p className={`text-sm font-bold mt-2 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {spendingTrendSummary.highest.label}
                               <span className={`text-xs font-mono ml-1.5 ${isDark ? 'text-accent-green' : 'text-green-600'}`}>₹{spendingTrendSummary.highest.value.toLocaleString('en-IN')}</span>
                             </p>
                           </div>
-                          <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <div className={`p-2 lg:p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Lowest Spending Day</p>
                             <p className={`text-sm font-bold mt-2 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {spendingTrendSummary.lowest.label}
                               <span className={`text-xs font-mono ml-1.5 ${isDark ? 'text-accent-red' : 'text-red-500'}`}>₹{spendingTrendSummary.lowest.value.toLocaleString('en-IN')}</span>
                             </p>
                           </div>
-                          <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <div className={`p-2 lg:p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Average Daily Spending</p>
                             <p className={`text-sm font-bold mt-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>₹{Math.round(spendingTrendSummary.average).toLocaleString('en-IN')}</p>
                           </div>
-                          <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <div className={`p-2 lg:p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Highest Single Expense</p>
                             <p className={`text-sm font-bold mt-2 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {topExpense?.title || topExpense?.category || '—'}
@@ -1311,7 +1312,7 @@ export default function DashboardPage() {
                     )}
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-10">
+                  <div className="flex flex-col items-center justify-center py-6 lg:py-10">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-3 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
                       📈
                     </div>
@@ -1324,32 +1325,32 @@ export default function DashboardPage() {
 
           {/* MONTH / YEAR / ALL TIME: [Expense Distribution 50%] [Spending Trend 50%] */}
           {(range === 'month' || range === 'year' || range === 'all') && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               {/* Expense Distribution */}
-              <div className={`rounded-3xl p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-                <h3 className={`text-sm font-heading font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                  Expense Distribution
-                </h3>
-                {categoryChartEntries.length > 0 ? (
-                  <>
-                    <ResponsiveContainer width="100%" height={340}>
-                      <PieChart>
-                        <Pie data={categoryChartEntries} cx="50%" cy="50%" outerRadius={120} dataKey="total" nameKey="category" labelLine={false} animationBegin={200} animationDuration={800}>
-                          {categoryChartEntries.map((_, i) => (
-                            <Cell key={i} fill={USER_CHART_COLORS[i % USER_CHART_COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip formatter={(value, name) => {
-                          const total = categoryChartEntries.reduce((s, e) => s + e.total, 0)
-                          return [`₹${(value / 100).toFixed(2)} (${((value / total) * 100).toFixed(1)}%)`, name]
-                        }} contentStyle={{
-                          backgroundColor: isDark ? '#1e293b' : '#fff',
-                          border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
-                          borderRadius: '12px', fontSize: '12px'
-                        }} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="mt-3 space-y-1">
+                <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                  <h3 className={`text-sm font-heading font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    Expense Distribution
+                  </h3>
+                  {categoryChartEntries.length > 0 ? (
+                    <>
+                      <div className="h-[220px] lg:h-[320px]"><ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={categoryChartEntries} cx="50%" cy="50%" outerRadius={110} dataKey="total" nameKey="category" labelLine={false} animationBegin={200} animationDuration={800}>
+                            {categoryChartEntries.map((_, i) => (
+                              <Cell key={i} fill={USER_CHART_COLORS[i % USER_CHART_COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip formatter={(value, name) => {
+                            const total = categoryChartEntries.reduce((s, e) => s + e.total, 0)
+                            return [`₹${(value / 100).toFixed(2)} (${((value / total) * 100).toFixed(1)}%)`, name]
+                          }} contentStyle={{
+                            backgroundColor: isDark ? '#1e293b' : '#fff',
+                            border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
+                            borderRadius: '12px', fontSize: '12px'
+                          }} />
+                        </PieChart>
+                      </ResponsiveContainer></div>
+                      <div className="mt-3 space-y-1">
                       {categoryChartEntries.map((entry, i) => {
                         const total = categoryChartEntries.reduce((s, e) => s + e.total, 0)
                         return (
@@ -1377,7 +1378,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Spending Trend */}
-              <div className={`rounded-3xl p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+              <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className={`text-sm font-heading font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {spendingTrendTitle}
@@ -1407,7 +1408,7 @@ export default function DashboardPage() {
                 </div>
                 {((spendingTrendEntries.data || []).some((e) => e.total > 0)) ? (
                   <>
-                    <ResponsiveContainer width="100%" height={300}>
+                    <div className="h-[200px] lg:h-[300px]"><ResponsiveContainer width="100%" height="100%">
                       {(range === 'all' && spendingTrendEntries.type === 'year') ? (
                         <BarChart data={spendingTrendEntries.data}>
                           <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} />
@@ -1444,9 +1445,9 @@ export default function DashboardPage() {
                             animationBegin={400} animationDuration={1000} />
                         </LineChart>
                       )}
-                    </ResponsiveContainer>
+                    </ResponsiveContainer></div>
                     {spendingTrendSummary && (
-                      <div className={`mt-8 pt-6 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
+                      <div className={`mt-4 lg:mt-8 pt-4 lg:pt-6 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
                         <div className="grid grid-cols-2 gap-3">
                           <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
@@ -1486,7 +1487,7 @@ export default function DashboardPage() {
                     )}
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12">
+                  <div className="flex flex-col items-center justify-center py-8 lg:py-12">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-3 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
                       📈
                     </div>
@@ -1581,9 +1582,9 @@ export default function DashboardPage() {
 
 function MyTripsCard({ trips, tripsLoading, displayTrips, systemConfig, setShowCreate, isDark, statusColors }) {
   return (
-    <div className={`rounded-3xl p-6 transition-colors h-full flex flex-col ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <h3 className={`text-sm font-heading font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>My Trips</h3>
+                <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full flex flex-col ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                  <div className="flex items-center justify-between mb-4 shrink-0">
+                    <h3 className={`text-sm font-heading font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>My Trips</h3>
         {trips.length > 3 && (
           <Link to="/trips" className={`text-xs font-medium transition-colors ${isDark ? 'text-accent-blue hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}>
             View All Trips →
@@ -1736,7 +1737,7 @@ function SettlementsCard({ settlements, isDark }) {
   const oweOverflow = settlements.i_owe?.length > 4 ? settlements.i_owe.length - 4 : 0
   const owedOverflow = settlements.owed_to_me?.length > 4 ? settlements.owed_to_me.length - 4 : 0
   return (
-    <div className={`rounded-3xl p-6 transition-colors h-full flex flex-col ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+    <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full flex flex-col ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
       <div className="flex items-center justify-between mb-4 shrink-0">
         <h3 className={`text-sm font-heading font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
           Settlements
@@ -1844,7 +1845,7 @@ function SettlementSummaryCard({ settlements, isDark, rangeCaption }) {
   const totalOwed = settlements.owed_to_me?.reduce((s, item) => s + item.amount, 0) || 0
   const pendingCount = (settlements.i_owe?.length || 0) + (settlements.owed_to_me?.length || 0)
   return (
-    <div className={`rounded-3xl p-6 transition-colors ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+    <div className={`rounded-3xl p-4 lg:p-6 transition-colors ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
       <h3 className={`text-sm font-heading font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
         Settlement Summary
       </h3>
@@ -1904,7 +1905,7 @@ function RecentActivityCard({ recentActivity, isDark }) {
   }
 
   return (
-    <div className={`rounded-3xl p-6 transition-colors h-full flex flex-col ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+    <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full flex flex-col ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
       <div className="flex items-center justify-between mb-4 shrink-0">
         <h3 className={`text-sm font-heading font-semibold flex items-center gap-1.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
           <svg className="w-4 h-4 text-accent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">

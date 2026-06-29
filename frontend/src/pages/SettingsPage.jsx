@@ -22,6 +22,7 @@ export default function SettingsPage() {
     bio: user?.bio || '',
   })
   const [pwForm, setPwForm] = useState({ current_password: '', new_password: '' })
+  const [pwShow, setPwShow] = useState({ current: false, new: false })
   const [saving, setSaving] = useState(false)
   const [changingPw, setChangingPw] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
@@ -134,19 +135,19 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl">
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-6 lg:mb-8">
         <h1 className="text-2xl font-heading">Settings</h1>
         {user?.role === 'admin' && (
           <span className="badge badge-amber text-[10px]">ADMIN</span>
         )}
       </div>
 
-      <div className="card mb-6">
-        <h2 className="text-lg font-semibold mb-6">Profile</h2>
+      <div className="card !p-4 lg:!p-6 mb-4 lg:mb-6">
+        <h2 className="text-lg font-semibold mb-4 lg:mb-6">Profile</h2>
 
-        <div className="flex items-center gap-5 mb-6 pb-6 border-b border-border/40">
-          <div className="relative group">
-            <Avatar user={user} size="lg" />
+        <div className="flex items-center gap-4 lg:gap-5 mb-4 lg:mb-6 pb-4 lg:pb-6 border-b border-border/40">
+          <div className="relative group shrink-0">
+            <Avatar user={user} size="lg" className="!w-14 !h-14" />
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingPhoto}
@@ -158,7 +159,7 @@ export default function SettingsPage() {
               </svg>
             </button>
           </div>
-          <div className="space-y-1.5">
+          <div className="min-w-0 flex-1">
             <div className="flex gap-2">
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -178,9 +179,9 @@ export default function SettingsPage() {
               )}
             </div>
             {validationError && (
-              <p className="text-xs text-accent-red font-medium">{validationError}</p>
+              <p className="text-xs text-accent-red font-medium mt-2">{validationError}</p>
             )}
-            <p className="text-xs text-text-muted">Recommended: Square image (minimum 256 × 256 px). JPG, PNG or WebP. Max 5 MB.</p>
+            <p className="text-xs text-text-muted mt-2">Recommended: Square image (minimum 256 × 256 px). JPG, PNG or WebP. Max 5 MB.</p>
           </div>
           <input
             ref={fileInputRef}
@@ -191,26 +192,26 @@ export default function SettingsPage() {
           />
         </div>
 
-        <form onSubmit={handleProfile} className="space-y-4">
+        <form onSubmit={handleProfile} className="space-y-3 lg:space-y-4">
           <div>
-            <label className="block text-sm text-text-secondary mb-1">Full Name</label>
+            <label className="block text-sm text-text-secondary mb-0.5 lg:mb-1">Full Name</label>
             <input className="input-field" value={profile.full_name}
               onChange={(e) => setProfile({ ...profile, full_name: e.target.value })} required />
           </div>
           <div>
-            <label className="block text-sm text-text-secondary mb-1">Username</label>
+            <label className="block text-sm text-text-secondary mb-0.5 lg:mb-1">Username</label>
             <input className="input-field" value={profile.username}
               onChange={(e) => setProfile({ ...profile, username: e.target.value })} required />
           </div>
           {user?.role !== 'admin' && (
             <div>
-              <label className="block text-sm text-text-secondary mb-1">Bio</label>
-              <textarea className="input-field" rows={3} value={profile.bio}
+              <label className="block text-sm text-text-secondary mb-0.5 lg:mb-1">Bio</label>
+              <textarea className="input-field" rows={2} value={profile.bio}
                 onChange={(e) => setProfile({ ...profile, bio: e.target.value })} placeholder="Tell us about yourself" />
             </div>
           )}
           <div>
-            <label className="block text-sm text-text-secondary mb-1">Email</label>
+            <label className="block text-sm text-text-secondary mb-0.5 lg:mb-1">Email</label>
             <input className="input-field" value={user?.email || ''} disabled />
           </div>
           <button type="submit" disabled={saving} className="btn-primary">
@@ -219,18 +220,50 @@ export default function SettingsPage() {
         </form>
       </div>
 
-      <div className="card mb-6">
-        <h2 className="text-lg font-semibold mb-6">Change Password</h2>
-        <form onSubmit={handlePassword} className="space-y-4">
+      <div className="card !p-4 lg:!p-6 mb-4 lg:mb-6">
+        <h2 className="text-lg font-semibold mb-4 lg:mb-6">Change Password</h2>
+        <form onSubmit={handlePassword} className="space-y-3 lg:space-y-4">
           <div>
-            <label className="block text-sm text-text-secondary mb-1">Current Password</label>
-            <input type="password" className="input-field" value={pwForm.current_password}
-              onChange={(e) => setPwForm({ ...pwForm, current_password: e.target.value })} required />
+            <label className="block text-sm text-text-secondary mb-0.5 lg:mb-1">Current Password</label>
+            <div className="relative">
+              <input type={pwShow.current ? 'text' : 'password'} className="input-field w-full pr-10" value={pwForm.current_password}
+                onChange={(e) => setPwForm({ ...pwForm, current_password: e.target.value })} required />
+              <button type="button" onClick={() => setPwShow((p) => ({ ...p, current: !p.current }))}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-text-primary">
+                {pwShow.current ? (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94m1.936-1.936A9.12 9.12 0 0112 3c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                )}
+              </button>
+            </div>
           </div>
           <div>
-            <label className="block text-sm text-text-secondary mb-1">New Password</label>
-            <input type="password" className="input-field" value={pwForm.new_password}
-              onChange={(e) => setPwForm({ ...pwForm, new_password: e.target.value })} required minLength={8} />
+            <label className="block text-sm text-text-secondary mb-0.5 lg:mb-1">New Password</label>
+            <div className="relative">
+              <input type={pwShow.new ? 'text' : 'password'} className="input-field w-full pr-10" value={pwForm.new_password}
+                onChange={(e) => setPwForm({ ...pwForm, new_password: e.target.value })} required minLength={8} />
+              <button type="button" onClick={() => setPwShow((p) => ({ ...p, new: !p.new }))}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-text-primary">
+                {pwShow.new ? (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94m1.936-1.936A9.12 9.12 0 0112 3c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                )}
+              </button>
+            </div>
+            {pwForm.new_password && (
+              <div className="mt-2 space-y-1">
+                <div className="flex gap-1">
+                  {['bg-accent-red', ...(pwForm.new_password.length >= 4 ? ['bg-accent-amber'] : ['bg-primary-lighter']), ...(pwForm.new_password.length >= 6 ? ['bg-accent-amber'] : ['bg-primary-lighter']), ...(pwForm.new_password.length >= 8 && /[A-Z]/.test(pwForm.new_password) && /[0-9]/.test(pwForm.new_password) ? ['bg-accent-green'] : ['bg-primary-lighter'])].slice(0, 4).map((c, i) => (
+                    <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${c}`} />
+                  ))}
+                </div>
+                <p className="text-[11px] text-text-muted">
+                  {pwForm.new_password.length < 6 ? 'Weak' : pwForm.new_password.length < 8 ? 'Fair' : /[A-Z]/.test(pwForm.new_password) && /[0-9]/.test(pwForm.new_password) ? 'Strong' : 'Fair'}
+                </p>
+              </div>
+            )}
           </div>
           <button type="submit" disabled={changingPw} className="btn-secondary">
             {changingPw ? 'Changing...' : 'Change Password'}

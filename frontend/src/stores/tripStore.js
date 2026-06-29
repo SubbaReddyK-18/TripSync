@@ -6,26 +6,27 @@ const useTripStore = create((set) => ({
   activeTrip: null,
   members: [],
   activity: [],
-  isLoading: false,
+  loading: false,
+  error: null,
 
   fetchTrips: async () => {
-    set({ isLoading: true })
+    set({ loading: true, error: null })
     try {
       const { data } = await tripsApi.getTrips()
-      set({ trips: data.data.trips, isLoading: false })
-    } catch {
-      set({ isLoading: false })
+      set({ trips: data.data.trips, loading: false })
+    } catch (err) {
+      set({ loading: false, error: err.response?.data?.error?.message || err.message || 'Failed to load trips' })
     }
   },
 
   fetchTrip: async (id) => {
-    set({ isLoading: true })
+    set({ loading: true, error: null })
     try {
       const { data } = await tripsApi.getTrip(id)
-      set({ activeTrip: data.data.trip, isLoading: false })
+      set({ activeTrip: data.data.trip, loading: false })
       return data.data.trip
-    } catch {
-      set({ isLoading: false })
+    } catch (err) {
+      set({ loading: false, error: err.response?.data?.error?.message || err.message || 'Failed to load trip' })
       return null
     }
   },
@@ -34,15 +35,21 @@ const useTripStore = create((set) => ({
     try {
       const { data } = await tripsApi.getMembers(tripId)
       set({ members: data.data.members })
-    } catch {}
+    } catch (err) {
+      set({ error: err.response?.data?.error?.message || err.message || 'Failed to load members' })
+    }
   },
 
   fetchActivity: async (tripId) => {
     try {
       const { data } = await tripsApi.getActivity(tripId)
       set({ activity: data.data.activities })
-    } catch {}
+    } catch (err) {
+      set({ error: err.response?.data?.error?.message || err.message || 'Failed to load activity' })
+    }
   },
+
+  clearError: () => set({ error: null }),
 
   resetActive: () => set({ activeTrip: null, members: [], activity: [] }),
 }))

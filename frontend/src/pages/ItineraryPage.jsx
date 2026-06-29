@@ -76,9 +76,12 @@ export default function ItineraryPage() {
     const text = commentText[itemId]?.trim()
     if (!text) return
     await submitCommentAction(async () => {
-      await createComment(tripId, { target_type: 'itinerary_item', target_id: itemId, text })
+      const { data } = await createComment(tripId, { target_type: 'itinerary_item', target_id: itemId, text })
       toast.success('Comment added')
       setCommentText((p) => ({ ...p, [itemId]: '' }))
+      if (data?.data?.comment) {
+        setComments((p) => ({ ...p, [itemId]: [data.data.comment, ...(p[itemId] || [])] }))
+      }
       loadComments(itemId)
     }).catch((err) => {
       toast.error(err.response?.data?.error?.message || 'Failed')
@@ -115,7 +118,7 @@ export default function ItineraryPage() {
           Back to Trip Overview
         </Link>
       </div>
-      <div className="text-center py-20 text-text-muted">Loading itinerary...</div>
+      <div className="text-center py-10 lg:py-20 text-text-muted">Loading itinerary...</div>
     </div>
   )
 
@@ -129,13 +132,13 @@ export default function ItineraryPage() {
           Back to Trip Overview
         </Link>
       </div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-heading">Itinerary</h1>
-        <button onClick={() => setShowAdd(true)} className="btn-primary">+ Add Item</button>
+      <div className="flex items-center justify-between mb-4 lg:mb-6">
+        <h1 className="text-xl lg:text-2xl font-heading">Itinerary</h1>
+        <button onClick={() => setShowAdd(true)} className="btn-primary text-sm lg:text-base px-3 lg:px-4 py-1.5 lg:py-2">+ Add Item</button>
       </div>
 
       {items.length === 0 ? (
-        <div className="text-center py-20">
+        <div className="text-center py-10 lg:py-20">
           <div className="w-16 h-16 rounded-2xl bg-accent-blue/10 flex items-center justify-center mx-auto mb-4 text-3xl">
             📅
           </div>
@@ -146,12 +149,12 @@ export default function ItineraryPage() {
         <div className="space-y-8">
           {sortedDates.map((date) => (
             <div key={date}>
-              <h3 className="text-lg font-heading text-accent-blue mb-4 sticky top-16 bg-primary py-2 z-10">{date}</h3>
+              <h3 className="text-base lg:text-lg font-heading text-accent-blue mb-3 lg:mb-4 sticky top-16 bg-primary py-2 z-10">{date}</h3>
               <div className="space-y-3">
                 {groupedByDate[date].map((item) => (
-                  <div key={item._id} className="card group">
+                  <div key={item._id} className="card group !p-3 lg:!p-4">
                     <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-4 flex-1">
+                      <div className="flex items-start gap-2 lg:gap-4 flex-1">
                         <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
                           item.type === 'transport' ? 'bg-accent-blue' :
                           item.type === 'accommodation' ? 'bg-accent-green' :
@@ -164,7 +167,7 @@ export default function ItineraryPage() {
                             <span className="badge text-[10px] bg-primary-lighter text-text-secondary capitalize">{item.type}</span>
                           </div>
                           {item.description && <p className="text-sm text-text-secondary mt-1">{item.description}</p>}
-                          <div className="flex gap-4 mt-2 text-xs text-text-muted flex-wrap">
+                          <div className="flex gap-2 lg:gap-4 mt-1.5 lg:mt-2 text-xs text-text-muted flex-wrap">
                             {item.start_time && <span>{item.start_time}{item.end_time ? ` - ${item.end_time}` : ''}</span>}
                             {item.location && <span>📍 {item.location}</span>}
                             {item.booking_reference && <span>🔖 {item.booking_reference}</span>}
@@ -172,8 +175,8 @@ export default function ItineraryPage() {
                           {item.notes && <p className="text-xs text-text-muted mt-1 italic">{item.notes}</p>}
 
                           {/* Comments Section */}
-                          <div className="border-t border-border pt-3 mt-3">
-                            <div className="space-y-2 mb-3 max-h-32 overflow-y-auto">
+                          <div className="border-t border-border pt-2 lg:pt-3 mt-2 lg:mt-3">
+                            <div className="space-y-1.5 lg:space-y-2 mb-2 lg:mb-3 max-h-28 lg:max-h-32 overflow-y-auto">
                               {loadingComments[item._id] ? (
                                 <p className="text-xs text-text-muted">Loading comments...</p>
                               ) : comments[item._id]?.length === 0 ? (
@@ -205,16 +208,16 @@ export default function ItineraryPage() {
                                 ))
                               )}
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-1.5 lg:gap-2">
                               <input
-                                className="input-field text-xs flex-1"
+                                className="input-field text-xs flex-1 px-2 lg:px-3 py-1.5 lg:py-2"
                                 placeholder="Write a comment..."
                                 value={commentText[item._id] || ''}
                                 onChange={(e) => setCommentText((p) => ({ ...p, [item._id]: e.target.value }))}
                                 onKeyDown={(e) => { if (e.key === 'Enter') handleComment(item._id) }}
                               />
                               <button onClick={() => handleComment(item._id)}
-                                className="btn-primary text-xs px-3 py-1.5"
+                                className="btn-primary text-xs px-2 lg:px-3 py-1.5"
                                 disabled={submittingComment || !commentText[item._id]?.trim()}>
                                 {submittingComment ? 'Posting...' : 'Post'}
                               </button>
@@ -223,8 +226,8 @@ export default function ItineraryPage() {
                         </div>
                       </div>
                       <button onClick={() => handleDelete(item._id)}
-                        className="text-text-muted hover:text-accent-red transition-colors opacity-0 group-hover:opacity-100 shrink-0 ml-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        className="text-text-muted hover:text-accent-red transition-colors opacity-0 group-hover:opacity-100 shrink-0 ml-1 lg:ml-2">
+                        <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
@@ -240,11 +243,11 @@ export default function ItineraryPage() {
       {showAdd && (
         <div className="modal-overlay" onClick={() => setShowAdd(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-xl font-semibold mb-6">Add Itinerary Item</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">Add Itinerary Item</h2>
+            <form onSubmit={handleSubmit} className="space-y-3 lg:space-y-4">
               <input className="input-field" placeholder="Title" value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })} required />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 lg:gap-3">
                 <div>
                   <label className="block text-xs text-text-muted mb-1">Date</label>
                   <input type="date" className="input-field" value={form.date}
@@ -262,7 +265,7 @@ export default function ItineraryPage() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 lg:gap-3">
                 <div>
                   <label className="block text-xs text-text-muted mb-1">Start Time</label>
                   <input type="time" className="input-field" value={form.start_time}
@@ -282,7 +285,7 @@ export default function ItineraryPage() {
                 onChange={(e) => setForm({ ...form, booking_reference: e.target.value })} />
               <textarea className="input-field" placeholder="Notes" rows={2}
                 value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-              <div className="flex gap-3 justify-end">
+              <div className="flex gap-2 lg:gap-3 justify-end">
                 <button type="button" onClick={() => setShowAdd(false)} className="btn-secondary">Cancel</button>
                 <button type="submit" disabled={submitting} className="btn-primary">{submitting ? 'Adding Item...' : 'Add Item'}</button>
               </div>

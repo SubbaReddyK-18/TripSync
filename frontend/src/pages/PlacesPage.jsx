@@ -141,30 +141,30 @@ export default function PlacesPage() {
         </div>
       ) : (
       <>
-      <div className="mb-4">
+      <div className="mb-2 lg:mb-4">
         <Link to={`/trips/${tripId}`} className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-text-primary transition-colors font-medium">
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           Back to Trip Overview
         </Link>
       </div>
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 lg:mb-6">
         <div>
           <h1 className="text-h4 text-text-primary">Visited Places</h1>
           <p className="text-sm text-text-muted mt-0.5">{locations.length} destination{locations.length !== 1 ? 's' : ''} explored</p>
         </div>
-        <button onClick={() => setShowAdd(true)} className="btn-primary flex items-center gap-2">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+        <button onClick={() => setShowAdd(true)} className="btn-primary text-sm lg:text-base flex items-center gap-1.5 lg:gap-2 px-3 lg:px-4 py-1.5 lg:py-2">
+          <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
           Add Place
         </button>
       </div>
 
       {/* Map */}
-      <div ref={mapRef} className="w-full h-[350px] rounded-2xl border border-border mb-8 z-0 overflow-hidden" />
+      <div ref={mapRef} className="w-full h-[280px] lg:h-[350px] rounded-2xl border border-border mb-6 lg:mb-8 z-0 overflow-hidden" />
 
       {locations.length === 0 ? (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-20">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-accent-amber/20 to-accent-orange/20 flex items-center justify-center mx-auto mb-5 text-4xl">📍</div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-10 lg:py-20">
+          <div className="w-14 h-14 lg:w-20 lg:h-20 rounded-2xl lg:rounded-3xl bg-gradient-to-br from-accent-amber/20 to-accent-orange/20 flex items-center justify-center mx-auto mb-3 lg:mb-5 text-2xl lg:text-4xl">📍</div>
           <h2 className="text-h5 text-text-primary mb-2">No places recorded yet</h2>
           <p className="text-body-sm text-text-muted max-w-sm mx-auto leading-relaxed">Click on the map or use the Add button to track places you've visited</p>
         </motion.div>
@@ -185,21 +185,21 @@ export default function PlacesPage() {
                 whileHover={{ y: -4 }}
                 className="card !p-0 overflow-hidden group"
               >
-                <div className={`relative h-32 bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+                <div className={`relative h-24 lg:h-32 bg-gradient-to-br ${gradient} flex items-center justify-center`}>
                   <div className="absolute inset-0 bg-black/10" />
-                  <svg className="w-10 h-10 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 lg:w-10 lg:h-10 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span className="absolute top-2 right-2 badge text-[10px] font-semibold bg-white/20 backdrop-blur-md text-white border border-white/20">
+                  <span className="absolute top-1.5 right-1.5 lg:top-2 lg:right-2 badge text-[10px] font-semibold bg-white/20 backdrop-blur-md text-white border border-white/20">
                     {categoryLabels[loc.category] || loc.category}
                   </span>
                 </div>
-                <div className="p-4">
+                <div className="p-3 lg:p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-text-primary truncate">{loc.name}</h3>
-                      <p className="text-xs text-text-muted mt-1">
+                      <p className="text-xs text-text-muted mt-0.5 lg:mt-1">
                         Added by {youName(user?._id, loc.added_by_user)}
                         {loc.created_at && (
                           <>
@@ -210,12 +210,12 @@ export default function PlacesPage() {
                       </p>
                     </div>
                     <button onClick={() => handleDelete(loc._id)}
-                      className="text-text-muted hover:text-accent-red transition-colors opacity-0 group-hover:opacity-100 shrink-0 ml-2">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                      className="text-text-muted hover:text-accent-red transition-colors opacity-0 group-hover:opacity-100 shrink-0 ml-1 lg:ml-2">
+                      <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                   </div>
-                  {loc.description && <p className="text-xs text-text-secondary mt-2 line-clamp-2">{loc.description}</p>}
-                  <div className="flex items-center gap-3 mt-3 text-[11px] text-text-muted">
+                  {loc.description && <p className="text-xs text-text-secondary mt-1.5 lg:mt-2 line-clamp-2">{loc.description}</p>}
+                  <div className="flex items-center gap-2 lg:gap-3 mt-2 lg:mt-3 text-[11px] text-text-muted">
                     <div className="flex items-center gap-1">
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                       {loc.latitude.toFixed(4)}, {loc.longitude.toFixed(4)}
@@ -236,21 +236,27 @@ export default function PlacesPage() {
       {showAdd && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" onClick={() => setShowAdd(false)}>
           <motion.div initial={{ scale: 0.96, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.96, opacity: 0 }} className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-xl font-semibold mb-6">Add Visited Place</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <h2 className="text-lg lg:text-xl font-semibold mb-4 lg:mb-6">Add Visited Place</h2>
+            <form onSubmit={handleSubmit} className="space-y-3 lg:space-y-4">
 
               <input className="input-field" placeholder="Place name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 lg:gap-3">
                 <div>
                   <label className="block text-xs text-text-muted mb-1">Latitude</label>
-                  <input type="number" step="any" className="input-field" placeholder="e.g. 48.8566" value={form.latitude} onChange={(e) => setForm({ ...form, latitude: e.target.value })} required />
+                  <div className="flex gap-1.5">
+                    <input type="number" step="any" className="input-field flex-1" placeholder="e.g. 48.8566" value={form.latitude} onChange={(e) => setForm({ ...form, latitude: e.target.value })} required />
+                    <button type="button" onClick={() => { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { setForm((prev) => ({ ...prev, latitude: pos.coords.latitude.toFixed(6), longitude: pos.coords.longitude.toFixed(6) })) }, () => toast.error('Location access denied')) } else { toast.error('Geolocation not supported') } }}
+                      className="btn-secondary text-xs px-2 whitespace-nowrap shrink-0" title="Use current location">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs text-text-muted mb-1">Longitude</label>
                   <input type="number" step="any" className="input-field" placeholder="e.g. 2.3522" value={form.longitude} onChange={(e) => setForm({ ...form, longitude: e.target.value })} required />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 lg:gap-3">
                 <div>
                   <label className="block text-xs text-text-muted mb-1">Visit Date</label>
                   <input type="date" className="input-field" value={form.visit_date} onChange={(e) => setForm({ ...form, visit_date: e.target.value })} required />
@@ -263,7 +269,7 @@ export default function PlacesPage() {
                 </div>
               </div>
               <textarea className="input-field" placeholder="Description (optional)" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              <div className="flex gap-3 justify-end">
+              <div className="flex gap-2 lg:gap-3 justify-end">
                 <button type="button" onClick={() => setShowAdd(false)} className="btn-secondary">Cancel</button>
                 <button type="submit" disabled={submitting} className="btn-primary">{submitting ? 'Adding Place...' : 'Add Place'}</button>
               </div>

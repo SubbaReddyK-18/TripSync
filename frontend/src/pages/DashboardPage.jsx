@@ -100,20 +100,20 @@ function StatCard({ icon, value, label, trend, color, isDark }) {
     <motion.div
       whileHover={{ y: -6, scale: 1.02 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className={`relative overflow-hidden rounded-3xl p-4 lg:p-6 transition-all duration-300 ${isDark
+      className={`relative overflow-hidden rounded-2xl p-3 lg:p-4 transition-all duration-300 ${isDark
         ? 'bg-[#111827] border border-white/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.2)]'
         : 'bg-white border border-slate-200/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
         }`}
     >
-      <div className="flex items-start justify-between mb-2 lg:mb-3">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? `bg-${color}/10` : `bg-${color}/5`
+      <div className="flex items-start justify-between mb-1 lg:mb-2">
+        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isDark ? `bg-${color}/10` : `bg-${color}/5`
           }`}
           style={{ backgroundColor: isDark ? `${color}15` : `${color}10` }}
         >
-          <span className="text-lg">{icon}</span>
+          <span className="text-base">{icon}</span>
         </div>
         {trend && (
-          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${trend.startsWith('+')
+          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${trend.startsWith('+')
             ? 'text-accent-green bg-accent-green/10'
             : 'text-accent-red bg-accent-red/10'
             }`}>
@@ -121,10 +121,10 @@ function StatCard({ icon, value, label, trend, color, isDark }) {
           </span>
         )}
       </div>
-      <p className={`text-2xl font-bold font-heading tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+      <p className={`text-lg font-bold font-heading tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
         {value}
       </p>
-      <p className={`text-sm mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{label}</p>
+      <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{label}</p>
     </motion.div>
   )
 }
@@ -278,7 +278,7 @@ export default function DashboardPage() {
 
   // Hour-based greeting
   const hour = new Date().getHours()
-  const greeting = hour >= 5 && hour < 12 ? '🌅 Good morning' : hour >= 12 && hour < 17 ? '☀️ Good afternoon' : '🌆 Good evening'
+  const greeting = hour >= 5 && hour < 12 ? 'Good morning' : hour >= 12 && hour < 17 ? '☀️ Good afternoon' : '🌆 Good evening'
   const userName = user?.full_name?.split(' ')[0] || user?.username || 'there'
 
   useEffect(() => {
@@ -697,7 +697,7 @@ export default function DashboardPage() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-      className="w-full max-w-full space-y-5 lg:space-y-8"
+      className="w-full max-w-full space-y-4 lg:space-y-6"
       >
         {/* Hero Section */}
         <div className={`relative overflow-hidden rounded-[32px] p-8 lg:p-10 ${isDark
@@ -1001,10 +1001,10 @@ export default function DashboardPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="w-full max-w-full space-y-8"
+      className="w-full max-w-full space-y-4 lg:space-y-6"
     >
       {/* ====== ROW 1: HERO SECTION ====== */}
-      <div className={`relative overflow-hidden rounded-[32px] p-5 lg:p-10 backdrop-blur-sm ${isDark
+      <div className={`relative overflow-hidden rounded-[32px] p-4 lg:p-6 backdrop-blur-sm ${isDark
         ? 'bg-[#111827]/90 border border-white/[0.06]'
         : 'bg-white/90 border border-slate-200/60 shadow-sm'
         }`}>
@@ -1063,30 +1063,30 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 lg:gap-8">
-          <div className="space-y-3 max-w-xl">
-            <h1 className={`text-4xl sm:text-5xl font-heading font-bold tracking-tight leading-[1.1] ${isDark ? 'text-white' : 'text-slate-900'}`}>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 lg:gap-4">
+          <div className="space-y-2 max-w-xl">
+            <h1 className={`text-2xl sm:text-3xl font-heading font-bold tracking-tight leading-[1.1] ${isDark ? 'text-white' : 'text-slate-900'}`}>
               {greeting}, {userName} 👋
             </h1>
-            <p className={`text-base sm:text-lg leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              {range === 'day' ? "Today's operational overview." : range === 'week' ? 'Your weekly insights at a glance.' : 'Track, analyze, and manage your travel finances.'}
+            <p className={`text-sm sm:text-base leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              {range === 'day' ? 'Today\'s operational overview.' : range === 'week' ? 'Your weekly insights at a glance.' : 'Track, analyze, and manage your travel finances.'}
             </p>
-            <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+            <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
               {range === 'day' ? `${rangeCaption} — ${activeTripsFiltered} active trip${activeTripsFiltered !== 1 ? 's' : ''}` : `${rangeCaption} overview`}
             </p>
 
-            <div className="flex flex-wrap gap-3 pt-1 lg:pt-2">
+            <div className="flex flex-wrap gap-2 pt-1">
               {systemConfig.enableTrips && (
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowCreate(true)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${isDark
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${isDark
                     ? 'bg-gradient-to-r from-accent-blue to-accent-indigo text-white shadow-lg shadow-accent-blue/20'
                     : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/20'
                     }`}
                 >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
                   New Trip
@@ -1096,7 +1096,7 @@ export default function DashboardPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowJoin(true)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${isDark
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-300 ${isDark
                   ? 'bg-white/[0.06] border border-white/[0.08] text-slate-200 hover:bg-white/[0.1]'
                   : 'bg-slate-100/70 border border-slate-200/60 text-slate-700 hover:bg-slate-200/50'
                   }`}
@@ -1116,12 +1116,12 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className={`text-center rounded-2xl p-4 lg:p-6 min-w-[160px] ${isDark ? 'bg-white/[0.04] border border-white/[0.06]' : 'bg-slate-50/50 border border-slate-200/60'}`}
+              className={`text-center rounded-2xl p-3 lg:p-4 min-w-[120px] ${isDark ? 'bg-white/[0.04] border border-white/[0.06]' : 'bg-slate-50/50 border border-slate-200/60'}`}
             >
-              <p className={`text-[11px] font-semibold uppercase tracking-widest mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              <p className={`text-[10px] font-semibold uppercase tracking-widest mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                 Active Trips
               </p>
-              <p className={`text-5xl font-heading font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              <p className={`text-3xl font-heading font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 {activeTripsFiltered}
               </p>
             </motion.div>
@@ -1131,7 +1131,7 @@ export default function DashboardPage() {
 
       {/* ====== ROW 2: STATISTICS CARDS ====== */}
       {!loading && (
-        <div className={`grid grid-cols-2 sm:grid-cols-3 ${range === 'year' || range === 'all' ? 'lg:grid-cols-6' : 'lg:grid-cols-5'} gap-4`}>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
           <StatCard icon="🗺️" value={overview?.activity_count || 0} label={KPI_LABELS[range]?.[0] || 'Activities'} trend={null} color="#6366F1" isDark={isDark} />
           <StatCard icon="💳" value={`₹${totalSpent}`} label={KPI_LABELS[range]?.[1] || 'Total Expenses'} trend={null} color="#3B82F6" isDark={isDark} />
           <StatCard icon="👥" value={membersParticipated} label={KPI_LABELS[range]?.[2] || 'Active Members'} trend={null} color="#8B5CF6" isDark={isDark} />
@@ -1152,14 +1152,14 @@ export default function DashboardPage() {
           {/* ====== ROW 3: CHARTS / TRIPS ====== */}
           {/* DAY: [Spending Trend 65%] [My Trips 35%] */}
           {range === 'day' && (
-            <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-4 lg:gap-6">
               {/* Spending Trend */}
-              <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-                <h3 className={`text-sm font-heading font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              <div className={`rounded-2xl p-4 lg:p-5 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                <h3 className={`text-sm font-heading font-semibold mb-2 lg:mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   Spending Trend
                 </h3>
                 {((spendingTrendEntries.data || []).some((e) => e.total > 0)) ? (
-                  <div className="h-[200px] lg:h-[300px]"><ResponsiveContainer width="100%" height="100%">
+                  <div className="h-[160px] lg:h-[240px]"><ResponsiveContainer width="100%" height="100%">
                     <LineChart data={spendingTrendEntries.data}>
                       <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} />
                       <XAxis dataKey="label" stroke={isDark ? '#475569' : '#94a3b8'} fontSize={11} />
@@ -1175,8 +1175,8 @@ export default function DashboardPage() {
                     </LineChart>
                   </ResponsiveContainer></div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-6 lg:py-12">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-3 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
+                  <div className="flex flex-col items-center justify-center py-4 lg:py-6">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
                       📊
                     </div>
                     <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No expenses today</p>
@@ -1184,16 +1184,16 @@ export default function DashboardPage() {
                   </div>
                 )}
                   {spendingTrendSummary && (
-                    <div className={`mt-4 pt-4 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
-                      <div className={`p-2 lg:p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                    <div className={`mt-3 pt-3 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
+                      <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                         <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Highest Single Expense</p>
-                        <p className={`text-sm font-bold mt-2 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                        <p className={`text-xs font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                           {topExpense?.title || topExpense?.category || '—'}
-                          <span className={`text-xs font-mono ml-1.5 ${isDark ? 'text-accent-green' : 'text-green-600'}`}> - ₹{(topExpense?.amount || 0).toLocaleString('en-IN')}</span>
+                          <span className={`text-[10px] font-mono ml-1.5 ${isDark ? 'text-accent-green' : 'text-green-600'}`}> - ₹{(topExpense?.amount || 0).toLocaleString('en-IN')}</span>
                         </p>
                       </div>
                     </div>
-                  )}
+                    )}
                 </div>
 
                 {/* My Trips */}
@@ -1211,14 +1211,14 @@ export default function DashboardPage() {
 
           {/* WEEK: [Expense Distribution 50%] [Spending Trend 50%] */}
           {range === 'week' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
               {/* Expense Distribution */}
               {categoryChartEntries.length > 0 ? (
-                <div className={`rounded-3xl p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-                  <h3 className={`text-sm font-heading font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                <div className={`rounded-2xl p-4 lg:p-5 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                  <h3 className={`text-sm font-heading font-semibold mb-2 lg:mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     Expense Distribution
                   </h3>
-                  <ResponsiveContainer width="100%" height={320}>
+                  <ResponsiveContainer width="100%" height={260}>
                     <PieChart>
                       <Pie data={categoryChartEntries} cx="50%" cy="50%" outerRadius={110} dataKey="total" nameKey="category" labelLine={false} animationBegin={200} animationDuration={800}>
                         {categoryChartEntries.map((_, i) => (
@@ -1253,8 +1253,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ) : (
-                <div className={`rounded-3xl p-6 transition-colors h-full flex flex-col items-center justify-center ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-3 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
+                <div className={`rounded-2xl p-4 lg:p-5 transition-colors h-full flex flex-col items-center justify-center ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
                     🥧
                   </div>
                   <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No expenses this week</p>
@@ -1262,13 +1262,13 @@ export default function DashboardPage() {
               )}
 
               {/* Spending Trend */}
-              <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-                <h3 className={`text-sm font-heading font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              <div className={`rounded-2xl p-4 lg:p-5 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                <h3 className={`text-sm font-heading font-semibold mb-2 lg:mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   Spending Trend
                 </h3>
                 {((spendingTrendEntries.data || []).some((e) => e.total > 0)) ? (
                   <>
-                    <div className="h-[200px] lg:h-[300px]"><ResponsiveContainer width="100%" height="100%">
+                    <div className="h-[160px] lg:h-[240px]"><ResponsiveContainer width="100%" height="100%">
                       <LineChart data={spendingTrendEntries.data}>
                         <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} />
                         <XAxis dataKey="label" stroke={isDark ? '#475569' : '#94a3b8'} fontSize={11} />
@@ -1280,31 +1280,31 @@ export default function DashboardPage() {
                       </LineChart>
                     </ResponsiveContainer></div>
                     {spendingTrendSummary && (
-                      <div className={`mt-4 lg:mt-8 pt-4 lg:pt-6 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
+                      <div className={`mt-3 pt-3 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
                         <div className="grid grid-cols-2 gap-2 lg:gap-3">
-                          <div className={`p-2 lg:p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Highest Spending Day</p>
-                            <p className={`text-sm font-bold mt-2 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <p className={`text-xs font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {spendingTrendSummary.highest.label}
-                              <span className={`text-xs font-mono ml-1.5 ${isDark ? 'text-accent-green' : 'text-green-600'}`}>₹{spendingTrendSummary.highest.value.toLocaleString('en-IN')}</span>
+                              <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-accent-green' : 'text-green-600'}`}>₹{spendingTrendSummary.highest.value.toLocaleString('en-IN')}</span>
                             </p>
                           </div>
-                          <div className={`p-2 lg:p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Lowest Spending Day</p>
-                            <p className={`text-sm font-bold mt-2 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <p className={`text-xs font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {spendingTrendSummary.lowest.label}
-                              <span className={`text-xs font-mono ml-1.5 ${isDark ? 'text-accent-red' : 'text-red-500'}`}>₹{spendingTrendSummary.lowest.value.toLocaleString('en-IN')}</span>
+                              <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-accent-red' : 'text-red-500'}`}>₹{spendingTrendSummary.lowest.value.toLocaleString('en-IN')}</span>
                             </p>
                           </div>
-                          <div className={`p-2 lg:p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Average Daily Spending</p>
-                            <p className={`text-sm font-bold mt-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>₹{Math.round(spendingTrendSummary.average).toLocaleString('en-IN')}</p>
+                            <p className={`text-xs font-bold mt-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>₹{Math.round(spendingTrendSummary.average).toLocaleString('en-IN')}</p>
                           </div>
-                          <div className={`p-2 lg:p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Highest Single Expense</p>
-                            <p className={`text-sm font-bold mt-2 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <p className={`text-xs font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {topExpense?.title || topExpense?.category || '—'}
-                              <span className={`text-xs font-mono ml-1.5 ${isDark ? 'text-accent-green' : 'text-green-600'}`}>- ₹{(topExpense?.amount || 0).toLocaleString('en-IN')}</span>
+                              <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-accent-green' : 'text-green-600'}`}>- ₹{(topExpense?.amount || 0).toLocaleString('en-IN')}</span>
                             </p>
                           </div>
                         </div>
@@ -1312,8 +1312,8 @@ export default function DashboardPage() {
                     )}
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-6 lg:py-10">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-3 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
+                  <div className="flex flex-col items-center justify-center py-4 lg:py-6">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
                       📈
                     </div>
                     <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No data this week</p>
@@ -1325,15 +1325,15 @@ export default function DashboardPage() {
 
           {/* MONTH / YEAR / ALL TIME: [Expense Distribution 50%] [Spending Trend 50%] */}
           {(range === 'month' || range === 'year' || range === 'all') && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
               {/* Expense Distribution */}
-                <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-                  <h3 className={`text-sm font-heading font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                <div className={`rounded-2xl p-4 lg:p-5 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                  <h3 className={`text-sm font-heading font-semibold mb-2 lg:mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     Expense Distribution
                   </h3>
                   {categoryChartEntries.length > 0 ? (
                     <>
-                      <div className="h-[220px] lg:h-[320px]"><ResponsiveContainer width="100%" height="100%">
+                      <div className="h-[180px] lg:h-[260px]"><ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie data={categoryChartEntries} cx="50%" cy="50%" outerRadius={110} dataKey="total" nameKey="category" labelLine={false} animationBegin={200} animationDuration={800}>
                             {categoryChartEntries.map((_, i) => (
@@ -1368,8 +1368,8 @@ export default function DashboardPage() {
                     </div>
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-3 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
+                  <div className="flex flex-col items-center justify-center py-6">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
                       🥧
                     </div>
                     <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No expenses in this period</p>
@@ -1378,8 +1378,8 @@ export default function DashboardPage() {
               </div>
 
               {/* Spending Trend */}
-              <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-                <div className="flex items-center justify-between mb-4">
+              <div className={`rounded-2xl p-4 lg:p-5 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                <div className="flex items-center justify-between mb-2 lg:mb-3">
                   <h3 className={`text-sm font-heading font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {spendingTrendTitle}
                   </h3>
@@ -1408,7 +1408,7 @@ export default function DashboardPage() {
                 </div>
                 {((spendingTrendEntries.data || []).some((e) => e.total > 0)) ? (
                   <>
-                    <div className="h-[200px] lg:h-[300px]"><ResponsiveContainer width="100%" height="100%">
+                    <div className="h-[160px] lg:h-[240px]"><ResponsiveContainer width="100%" height="100%">
                       {(range === 'all' && spendingTrendEntries.type === 'year') ? (
                         <BarChart data={spendingTrendEntries.data}>
                           <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} />
@@ -1447,39 +1447,39 @@ export default function DashboardPage() {
                       )}
                     </ResponsiveContainer></div>
                     {spendingTrendSummary && (
-                      <div className={`mt-4 lg:mt-8 pt-4 lg:pt-6 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                      <div className={`mt-3 pt-3 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                               {range === 'month' ? 'Highest Spending Day' : 'Highest Spending Month'}
                             </p>
-                            <p className={`text-sm font-bold mt-2 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <p className={`text-xs font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {spendingTrendSummary.highest.label}
-                              <span className={`text-xs font-mono ml-1.5 ${isDark ? 'text-accent-green' : 'text-green-600'}`}>- ₹{spendingTrendSummary.highest.value.toLocaleString('en-IN')}</span>
+                              <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-accent-green' : 'text-green-600'}`}>- ₹{spendingTrendSummary.highest.value.toLocaleString('en-IN')}</span>
                             </p>
                           </div>
-                          <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                               {range === 'month' ? 'Lowest Spending Day' : 'Lowest Spending Month'}
                             </p>
-                            <p className={`text-sm font-bold mt-2 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <p className={`text-xs font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {spendingTrendSummary.lowest.label}
-                              <span className={`text-xs font-mono ml-1.5 ${isDark ? 'text-accent-red' : 'text-red-500'}`}>- ₹{spendingTrendSummary.lowest.value.toLocaleString('en-IN')}</span>
+                              <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-accent-red' : 'text-red-500'}`}>- ₹{spendingTrendSummary.lowest.value.toLocaleString('en-IN')}</span>
                             </p>
                           </div>
-                          <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                               {range === 'month' ? 'Average Daily Spending' : 'Average Monthly Spending'}
                             </p>
-                            <p className={`text-sm font-bold mt-2 ${isDark ? 'text-white' : 'text-slate-900'}`}> 
+                            <p className={`text-xs font-bold mt-1 ${isDark ? 'text-white' : 'text-slate-900'}`}> 
                               ₹{Math.round(spendingTrendSummary.average).toLocaleString('en-IN')}
                             </p>
                           </div>
-                          <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Highest Single Expense</p>
-                            <p className={`text-sm font-bold mt-2 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <p className={`text-xs font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {topExpense?.title || topExpense?.category || '—'}
-                              <span className={`text-xs font-mono ml-1.5 ${isDark ? 'text-accent-green' : 'text-green-600'}`}>- ₹{(topExpense?.amount || 0).toLocaleString('en-IN')}</span>
+                              <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-accent-green' : 'text-green-600'}`}>- ₹{(topExpense?.amount || 0).toLocaleString('en-IN')}</span>
                             </p>
                           </div>
                         </div>
@@ -1487,8 +1487,8 @@ export default function DashboardPage() {
                     )}
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-8 lg:py-12">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-3 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
+                  <div className="flex flex-col items-center justify-center py-6">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
                       📈
                     </div>
                     <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No spending data</p>
@@ -1500,7 +1500,7 @@ export default function DashboardPage() {
 
           {/* ====== ROW 4: SETTLEMENTS 65% + ACTIVITY 35% ====== */}
           {(range === 'day' || range === 'week') && (
-            <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-4 lg:gap-6">
               <SettlementsCard settlements={settlements} isDark={isDark} />
               <RecentActivityCard recentActivity={recentActivity} isDark={isDark} />
             </div>
@@ -1597,11 +1597,11 @@ function MyTripsCard({ trips, tripsLoading, displayTrips, systemConfig, setShowC
         </div>
       ) : trips.length === 0 ? (
         <div className={`flex flex-col items-center justify-center flex-1 text-center rounded-2xl border-2 border-dashed ${isDark ? 'border-white/[0.06]' : 'border-slate-200'}`}>
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
+          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mx-auto mb-2 text-lg ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
             🗺️
           </div>
           <p className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>No trips yet</p>
-          <p className={`text-xs mt-1 mb-3 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+          <p className={`text-xs mt-0.5 mb-2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
             {systemConfig.enableTrips ? 'Create your first journey.' : 'Trip creation is disabled.'}
           </p>
           {systemConfig.enableTrips && (
@@ -1828,12 +1828,12 @@ function SettlementsCard({ settlements, isDark }) {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center flex-1">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-3 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
+        <div className="flex flex-col items-center justify-center flex-1 py-2">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
             🎉
           </div>
           <p className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>You're all settled!</p>
-          <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>No pending settlements.</p>
+          <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>No pending settlements.</p>
         </div>
       )}
     </div>
@@ -1916,12 +1916,12 @@ function RecentActivityCard({ recentActivity, isDark }) {
       </div>
       <div className="flex-1 flex flex-col min-h-0">
         {recentActivity.length === 0 ? (
-          <div className="flex flex-col items-center justify-center flex-1">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-3 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
+          <div className="flex flex-col items-center justify-center flex-1 py-2">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
               📋
             </div>
             <p className={`text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No recent activity</p>
-            <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Actions will appear here as you use TripSync.</p>
+            <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Actions will appear here as you use TripSync.</p>
           </div>
         ) : (
           <div className="flex-1 flex flex-col">

@@ -133,7 +133,7 @@ export default function ExpensesPage() {
 
   const loadComments = async (expenseId) => {
     setLoadingComments((p) => ({ ...p, [expenseId]: true }))
-    try { const { data } = await getComments(tripId, { target_type: 'expense', target_id: expenseId }); setComments((p) => ({ ...p, [expenseId]: data.data.comments })) } catch {}
+    try { const { data } = await getComments(tripId, { target_type: 'expense', target_id: expenseId }); setComments((p) => ({ ...p, [expenseId]: data.data.comments })) } catch { toast.error('Failed to load comments') }
     setLoadingComments((p) => ({ ...p, [expenseId]: false }))
   }
 
@@ -213,17 +213,14 @@ export default function ExpensesPage() {
   const handleComment = async (expenseId) => {
     const text = commentText[expenseId]?.trim(); if (!text) return
     await submitCommentAction(async () => {
-      const { data } = await createComment(tripId, { target_type: 'expense', target_id: expenseId, text }); toast.success('Comment added'); setCommentText((p) => ({ ...p, [expenseId]: '' }))
-      if (data?.data?.comment) {
-        setComments((p) => ({ ...p, [expenseId]: [data.data.comment, ...(p[expenseId] || [])] }))
-      }
-      loadComments(expenseId)
+      await createComment(tripId, { target_type: 'expense', target_id: expenseId, text }); toast.success('Comment added'); setCommentText((p) => ({ ...p, [expenseId]: '' }))
+      await loadComments(expenseId)
     }).catch((err) => { toast.error(err.response?.data?.error?.message || 'Failed') })
   }
 
   const handleDeleteComment = async (expenseId, commentId) => {
     if (!confirm('Delete this comment?')) return
-    try { await deleteComment(tripId, commentId); toast.success('Comment deleted'); loadComments(expenseId) }
+    try { await deleteComment(tripId, commentId); toast.success('Comment deleted'); await loadComments(expenseId) }
     catch (err) { toast.error(err.response?.data?.error?.message || 'Failed') }
   }
 
@@ -436,7 +433,7 @@ export default function ExpensesPage() {
                                               <span className="text-text-secondary"> {c.is_deleted ? '[deleted]' : c.text}</span>
                                               <span className="block text-[10px] text-text-muted mt-0.5">{new Date(c.created_at).toLocaleString(undefined, { timeZone: 'Asia/Kolkata' })}</span>
                                             </div>
-                                            {c.author_id === user?._id && !c.is_deleted && (
+                                            {c.author?._id === user?._id && !c.is_deleted && (
                                               <button onClick={() => handleDeleteComment(expense._id, c._id)} className="text-text-muted hover:text-accent-red shrink-0">
                                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                               </button>

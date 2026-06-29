@@ -39,7 +39,7 @@ export default function ItineraryPage() {
     try {
       const { data } = await getComments(tripId, { target_type: 'itinerary_item', target_id: itemId })
       setComments((p) => ({ ...p, [itemId]: data.data.comments }))
-    } catch {}
+    } catch { toast.error('Failed to load comments') }
     setLoadingComments((p) => ({ ...p, [itemId]: false }))
   }
 
@@ -76,13 +76,10 @@ export default function ItineraryPage() {
     const text = commentText[itemId]?.trim()
     if (!text) return
     await submitCommentAction(async () => {
-      const { data } = await createComment(tripId, { target_type: 'itinerary_item', target_id: itemId, text })
+      await createComment(tripId, { target_type: 'itinerary_item', target_id: itemId, text })
       toast.success('Comment added')
       setCommentText((p) => ({ ...p, [itemId]: '' }))
-      if (data?.data?.comment) {
-        setComments((p) => ({ ...p, [itemId]: [data.data.comment, ...(p[itemId] || [])] }))
-      }
-      loadComments(itemId)
+      await loadComments(itemId)
     }).catch((err) => {
       toast.error(err.response?.data?.error?.message || 'Failed')
     })
@@ -93,7 +90,7 @@ export default function ItineraryPage() {
     try {
       await deleteComment(tripId, commentId)
       toast.success('Comment deleted')
-      loadComments(itemId)
+      await loadComments(itemId)
     } catch (err) {
       toast.error(err.response?.data?.error?.message || 'Failed')
     }
@@ -138,19 +135,19 @@ export default function ItineraryPage() {
       </div>
 
       {items.length === 0 ? (
-        <div className="text-center py-10 lg:py-20">
-          <div className="w-16 h-16 rounded-2xl bg-accent-blue/10 flex items-center justify-center mx-auto mb-4 text-3xl">
+        <div className="text-center py-6 lg:py-10">
+          <div className="w-12 h-12 rounded-2xl bg-accent-blue/10 flex items-center justify-center mx-auto mb-3 text-2xl">
             📅
           </div>
-          <p className="text-text-muted text-lg mb-2">No itinerary items yet</p>
-          <p className="text-text-muted text-sm">Plan your trip day by day</p>
+          <p className="text-text-muted text-base mb-1">No itinerary items yet</p>
+          <p className="text-text-muted text-xs">Plan your trip day by day</p>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6">
           {sortedDates.map((date) => (
             <div key={date}>
-              <h3 className="text-base lg:text-lg font-heading text-accent-blue mb-3 lg:mb-4 sticky top-16 bg-primary py-2 z-10">{date}</h3>
-              <div className="space-y-3">
+              <h3 className="text-sm lg:text-base font-heading text-accent-blue mb-2 lg:mb-3 sticky top-16 bg-primary py-2 z-10">{date}</h3>
+              <div className="space-y-2">
                 {groupedByDate[date].map((item) => (
                   <div key={item._id} className="card group !p-3 lg:!p-4">
                     <div className="flex items-start justify-between">
@@ -175,8 +172,8 @@ export default function ItineraryPage() {
                           {item.notes && <p className="text-xs text-text-muted mt-1 italic">{item.notes}</p>}
 
                           {/* Comments Section */}
-                          <div className="border-t border-border pt-2 lg:pt-3 mt-2 lg:mt-3">
-                            <div className="space-y-1.5 lg:space-y-2 mb-2 lg:mb-3 max-h-28 lg:max-h-32 overflow-y-auto">
+                          <div className="border-t border-border pt-2 mt-2">
+                            <div className="space-y-1 mb-2 max-h-24 overflow-y-auto">
                               {loadingComments[item._id] ? (
                                 <p className="text-xs text-text-muted">Loading comments...</p>
                               ) : comments[item._id]?.length === 0 ? (
@@ -196,7 +193,7 @@ export default function ItineraryPage() {
                                       <span className="text-text-secondary"> {c.is_deleted ? '[deleted]' : c.text}</span>
                                       <span className="block text-[10px] text-text-muted mt-0.5">{new Date(c.created_at).toLocaleString(undefined, { timeZone: 'Asia/Kolkata' })}</span>
                                     </div>
-                                    {c.author_id === user?._id && !c.is_deleted && (
+                                    {c.author?._id === user?._id && !c.is_deleted && (
                                       <button onClick={() => handleDeleteComment(item._id, c._id)}
                                         className="text-text-muted hover:text-accent-red shrink-0">
                                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,9 +205,9 @@ export default function ItineraryPage() {
                                 ))
                               )}
                             </div>
-                            <div className="flex gap-1.5 lg:gap-2">
+                            <div className="flex gap-1.5">
                               <input
-                                className="input-field text-xs flex-1 px-2 lg:px-3 py-1.5 lg:py-2"
+                                className="input-field text-xs flex-1 px-2 py-1.5"
                                 placeholder="Write a comment..."
                                 value={commentText[item._id] || ''}
                                 onChange={(e) => setCommentText((p) => ({ ...p, [item._id]: e.target.value }))}

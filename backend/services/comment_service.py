@@ -78,7 +78,7 @@ def get_comments(trip_id: str, target_type: str, target_id: str) -> list:
 
         author = user_map.get(c["author_id"])
         c["author"] = {
-            "_id": author["_id"],
+            "_id": str(author["_id"]),
             "full_name": author["full_name"],
             "username": author["username"],
             "profile_photo_url": author.get("profile_photo_url", ""),

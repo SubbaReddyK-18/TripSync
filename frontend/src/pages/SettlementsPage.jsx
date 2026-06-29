@@ -134,7 +134,7 @@ export default function SettlementsPage() {
           All Settlements
         </h3>
         {data.all.length === 0 ? (
-          <div className="text-center py-6 lg:py-10">
+          <div className="text-center py-4 lg:py-6">
             <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-accent-green/10 flex items-center justify-center mx-auto mb-2 lg:mb-3 text-xl lg:text-2xl">💰</div>
             <p className="text-text-muted font-medium text-sm">No settlements yet</p>
           </div>

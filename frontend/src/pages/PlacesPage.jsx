@@ -163,10 +163,10 @@ export default function PlacesPage() {
       <div ref={mapRef} className="w-full h-[280px] lg:h-[350px] rounded-2xl border border-border mb-6 lg:mb-8 z-0 overflow-hidden" />
 
       {locations.length === 0 ? (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-10 lg:py-20">
-          <div className="w-14 h-14 lg:w-20 lg:h-20 rounded-2xl lg:rounded-3xl bg-gradient-to-br from-accent-amber/20 to-accent-orange/20 flex items-center justify-center mx-auto mb-3 lg:mb-5 text-2xl lg:text-4xl">📍</div>
-          <h2 className="text-h5 text-text-primary mb-2">No places recorded yet</h2>
-          <p className="text-body-sm text-text-muted max-w-sm mx-auto leading-relaxed">Click on the map or use the Add button to track places you've visited</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-6 lg:py-10">
+          <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-gradient-to-br from-accent-amber/20 to-accent-orange/20 flex items-center justify-center mx-auto mb-2 lg:mb-3 text-xl lg:text-2xl">📍</div>
+          <h2 className="text-sm lg:text-base font-heading font-semibold text-text-primary mb-1">No places recorded yet</h2>
+          <p className="text-xs text-text-muted max-w-sm mx-auto">Click on the map or use the Add button to track places you've visited</p>
         </motion.div>
       ) : (
         <motion.div

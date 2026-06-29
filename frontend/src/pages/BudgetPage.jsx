@@ -158,14 +158,14 @@ export default function BudgetPage() {
                 <svg className="w-4 h-4 text-accent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                 Category Breakdown
               </h3>
-              <div className="h-[200px] lg:h-[300px]">
+              <div className="h-[180px] lg:h-[260px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={data.category_spending.map((c) => ({ ...c, total: c.total / 100 }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                    <XAxis dataKey="category" stroke="var(--color-text-muted)" tick={{ fontSize: 12 }} />
-                    <YAxis stroke="var(--color-text-muted)" tick={{ fontSize: 12 }} />
+                    <XAxis dataKey="category" stroke="var(--color-text-muted)" tick={{ fontSize: 10 }} angle={-20} textAnchor="end" height={50} />
+                    <YAxis stroke="var(--color-text-muted)" tick={{ fontSize: 10 }} />
                     <Tooltip contentStyle={{ backgroundColor: 'var(--color-surface-elevated)', border: '1px solid var(--color-border)', borderRadius: '8px', fontSize: 12 }} />
-                    <Bar dataKey="total" radius={[6, 6, 0, 0]}>
+                    <Bar dataKey="total" radius={[4, 4, 0, 0]}>
                       {data.category_spending.map((_, i) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}
                     </Bar>
                   </BarChart>
@@ -179,13 +179,13 @@ export default function BudgetPage() {
                 Spent vs Remaining
               </h3>
               <div className="flex items-center justify-center">
-                <div className="h-[180px] lg:h-[240px] w-full max-w-[280px]">
+                <div className="h-[150px] lg:h-[210px] w-full max-w-[260px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie data={[
                         { name: 'Spent', value: data.total_spent / 100 },
                         { name: 'Remaining', value: Math.max(0, (data.total_budget - data.total_spent) / 100) },
-                      ]} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" startAngle={90} endAngle={-270}>
+                      ]} cx="50%" cy="50%" innerRadius={40} outerRadius={68} dataKey="value" startAngle={90} endAngle={-270}>
                         <Cell fill={data.health === 'over_budget' ? '#f87171' : data.health === 'near_limit' ? '#fbbf24' : '#4ade80'} />
                         <Cell fill="var(--color-border)" />
                       </Pie>
@@ -214,14 +214,18 @@ export default function BudgetPage() {
                 <svg className="w-4 h-4 text-accent-indigo" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
                 Daily Spending
               </h3>
-              <div className="h-[180px] lg:h-[250px]">
+              <div className="h-[160px] lg:h-[220px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={data.daily_spending.map((d) => ({ ...d, amount: d.amount / 100 }))}>
+                  <LineChart data={data.daily_spending.map((d) => ({
+                    ...d,
+                    amount: d.amount / 100,
+                    date: new Date(d.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+                  }))}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                    <XAxis dataKey="date" stroke="var(--color-text-muted)" tick={{ fontSize: 11 }} />
-                    <YAxis stroke="var(--color-text-muted)" tick={{ fontSize: 11 }} />
-                    <Tooltip contentStyle={{ backgroundColor: 'var(--color-surface-elevated)', border: '1px solid var(--color-border)', borderRadius: '8px' }} />
-                    <Line type="monotone" dataKey="amount" stroke="#60a5fa" strokeWidth={2.5} dot={{ fill: '#60a5fa', r: 3 }} activeDot={{ r: 5, strokeWidth: 0 }} />
+                    <XAxis dataKey="date" stroke="var(--color-text-muted)" tick={{ fontSize: 10 }} />
+                    <YAxis stroke="var(--color-text-muted)" tick={{ fontSize: 10 }} />
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--color-surface-elevated)', border: '1px solid var(--color-border)', borderRadius: '8px', fontSize: 12 }} />
+                    <Line type="monotone" dataKey="amount" stroke="#60a5fa" strokeWidth={2} dot={{ fill: '#60a5fa', r: 2.5 }} activeDot={{ r: 4, strokeWidth: 0 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

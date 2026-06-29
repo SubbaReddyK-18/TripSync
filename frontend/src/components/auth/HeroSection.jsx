@@ -108,22 +108,22 @@ export default function HeroSection({ mode = 'login', isDark, portal = 'user', s
   const tagline = isAdmin ? adminTagline : isLogin ? userTagline : regTagline
 
   return (
-    <div className="w-full lg:w-[60%] flex flex-col justify-center px-6 lg:px-16 xl:px-24 py-4 lg:py-12 relative z-10">
-      <Logo size="md" isDark={isDark} isAdmin={isAdmin} className="mb-3 lg:mb-12" />
+    <div className="w-full lg:w-[60%] flex flex-col justify-center px-5 lg:px-16 xl:px-24 py-3 lg:py-12 relative z-10">
+      <Logo size="md" isDark={isDark} isAdmin={isAdmin} className="mb-2 lg:mb-10" />
 
 
       {/* Hero Typography - Apple-style hierarchy */}
-      <div className="mb-3 lg:mb-10">
-        <h1 className={`font-heading font-bold leading-[1.05] tracking-[-0.03em] mb-1 lg:mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}
-          style={{ fontSize: 'clamp(2.4rem, 5vw, 4.2rem)' }}>
+      <div className="mb-2 lg:mb-6">
+        <h1 className={`font-heading font-bold leading-[1.1] tracking-[-0.02em] mb-0.5 lg:mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}
+          style={{ fontSize: 'clamp(1.8rem, 4.5vw, 3.5rem)' }}>
           {tagline[0]}
         </h1>
-        <h2 className={`font-heading font-semibold leading-[1.1] tracking-[-0.02em] mb-1 lg:mb-2 ${isDark ? 'text-slate-300' : 'text-slate-500'}`}
-          style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
+        <h2 className={`font-heading font-semibold leading-[1.15] tracking-[-0.02em] mb-0.5 lg:mb-1 ${isDark ? 'text-slate-300' : 'text-slate-500'}`}
+          style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.8rem)' }}>
           {tagline[1]}
         </h2>
-        <h3 className={`font-heading font-medium leading-[1.15] tracking-[-0.01em] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}
-          style={{ fontSize: 'clamp(1.7rem, 3.5vw, 3rem)' }}>
+        <h3 className={`font-heading font-medium leading-[1.2] tracking-[-0.01em] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}
+          style={{ fontSize: 'clamp(1.25rem, 3vw, 2.4rem)' }}>
           {tagline[2]}
         </h3>
       </div>

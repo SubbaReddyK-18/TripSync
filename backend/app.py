@@ -45,7 +45,6 @@ def create_app(config_name=None):
     register_error_handlers(app)
     _init_services(app)
     _init_socketio(app)
-    create_cli(app)
 
     @app.route("/api/v1/health")
     def health():

@@ -66,6 +66,7 @@ export default function ExpensesPage() {
   const [members, setMembers] = useState([])
   const [selectedMembers, setSelectedMembers] = useState([])
   const [expandedId, setExpandedId] = useState(null)
+  const [menuOpenId, setMenuOpenId] = useState(null)
   const [comments, setComments] = useState({})
   const [loadingComments, setLoadingComments] = useState({})
   const [commentText, setCommentText] = useState({})
@@ -100,7 +101,7 @@ export default function ExpensesPage() {
       if (entries.length === 0) return 'Someone'
       const parts = entries.map(([uid, amt]) => {
         const name = uid === user?._id ? 'You' : (members.find((m) => m.user._id === uid)?.user.full_name || 'Someone')
-        return `${name} (₹${(amt / 100).toFixed(2)})`
+        return `${name} (₹${(amt / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })})`
       })
       return parts.join(', ')
     }
@@ -139,6 +140,7 @@ export default function ExpensesPage() {
 
   const toggleExpand = (id) => {
     if (expandedId === id) { setExpandedId(null) } else { setExpandedId(id); if (!comments[id]) loadComments(id) }
+    setMenuOpenId(null)
   }
 
   const openAddModal = async () => {
@@ -171,7 +173,7 @@ export default function ExpensesPage() {
         return
       }
       if (Math.abs(totalAllocatedPayers - targetAmount) > 0.01) {
-        toast.error(`The sum of payer contributions (₹${totalAllocatedPayers.toFixed(2)}) must equal the total expense amount (₹${targetAmount.toFixed(2)})`)
+        toast.error(`The sum of payer contributions (₹${totalAllocatedPayers.toLocaleString('en-IN', { maximumFractionDigits: 0 })}) must equal the total expense amount (₹${targetAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })})`)
         return
       }
 
@@ -249,7 +251,7 @@ export default function ExpensesPage() {
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <div>
           <h1 className="text-h3 lg:text-h4 text-text-primary">Expenses</h1>
-          <p className="text-xs lg:text-sm text-text-muted mt-0">{filtered.length} expense{filtered.length !== 1 ? 's' : ''} · ₹{(totalAmount / 100).toFixed(2)} total</p>
+          <p className="text-xs lg:text-sm text-text-muted mt-0">{filtered.length} expense{filtered.length !== 1 ? 's' : ''} · ₹{(totalAmount / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })} total</p>
         </div>
         <button onClick={openAddModal} className="btn-primary flex items-center gap-1.5 lg:gap-2 py-2 lg:py-2.5 text-xs lg:text-sm">
           <svg className="w-3.5 h-3.5 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,7 +294,7 @@ export default function ExpensesPage() {
                 <div key={entry.user_id} className={`flex items-center justify-between px-3 py-1.5 lg:py-2 rounded-lg border ${isPositive ? 'bg-accent-green/5 border-accent-green/15' : isZero ? 'bg-primary-lighter/30 border-border/20' : 'bg-accent-red/5 border-accent-red/15'}`}>
                   <span className="text-xs font-medium text-text-primary truncate">{you(user?._id, entry.user_id, entry.full_name)}</span>
                   <span className={`font-mono text-xs font-bold shrink-0 whitespace-nowrap ${isPositive ? 'text-accent-green' : isZero ? 'text-text-muted' : 'text-accent-red'}`}>
-                    {isPositive ? '+' : ''}{isZero ? '₹0' : `₹${(Math.abs(entry.balance) / 100).toFixed(0)}`}
+                    {isPositive ? '+' : ''}{isZero ? '₹0' : `₹${(Math.abs(entry.balance) / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`}
                   </span>
                 </div>
               )
@@ -317,7 +319,7 @@ export default function ExpensesPage() {
               <div className="flex items-center gap-3 mb-3 lg:mb-4">
                 <h3 className="text-xs lg:text-sm font-semibold text-text-primary">{dateLabel}</h3>
                 <div className="h-px flex-1 bg-border-light" />
-                <span className="text-[11px] lg:text-xs text-text-muted font-mono">{items.length} expense{items.length !== 1 ? 's' : ''} · ₹{(items.reduce((s, e) => s + e.amount, 0) / 100).toFixed(0)}</span>
+                <span className="text-[11px] lg:text-xs text-text-muted font-mono">{items.length} expense{items.length !== 1 ? 's' : ''} · ₹{(items.reduce((s, e) => s + e.amount, 0) / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
               </div>
               <div className="relative">
                 <div className="absolute left-[19px] top-0 bottom-0 w-0.5 bg-border-light/80" />
@@ -335,39 +337,57 @@ export default function ExpensesPage() {
                       >
                         <div className={`absolute left-[12px] lg:left-[13px] top-[18px] lg:top-5 w-2.5 lg:w-3 h-2.5 lg:h-3 rounded-full border-2 ${catStyle.border} bg-surface z-10`} />
                         <div
-                          className={`card !p-3 lg:!p-4 cursor-pointer transition-all duration-200 hover:shadow-elevated ${isExpanded ? 'ring-1 ring-accent-green/20' : ''}`}
+                          className={`card !p-2 lg:!p-3 cursor-pointer transition-all duration-200 hover:shadow-elevated ${isExpanded ? 'ring-1 ring-accent-green/20' : ''}`}
                           onClick={() => toggleExpand(expense._id)}
                         >
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 lg:gap-3 flex-1 min-w-0">
-                              <div className={`w-9 h-9 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center text-base lg:text-lg shrink-0 ${catStyle.bg} ${catStyle.text}`}>
+                            <div className="flex items-center gap-1.5 lg:gap-2 flex-1 min-w-0">
+                              <div className={`w-8 h-8 lg:w-9 lg:h-9 rounded-xl flex items-center justify-center text-sm lg:text-base shrink-0 ${catStyle.bg} ${catStyle.text}`}>
                                 {catStyle.icon}
                               </div>
                               <div className="min-w-0">
                                 <p className="font-semibold text-text-primary text-sm truncate">{expense.title}</p>
-                                <div className="flex items-center gap-2 mt-0">
+                                <div className="flex items-center gap-1.5 mt-0">
                                   <span className={`badge text-[10px] ${catStyle.bg} ${catStyle.text} border ${catStyle.border}`}>{expense.category}</span>
-                                  <span className="text-[11px] lg:text-xs text-text-muted truncate">{expense.split_type} · {getPayerNameSummary(expense.paid_by)}</span>
+                                  <span className="text-[11px] text-text-muted truncate">{expense.split_type} · {getPayerNameSummary(expense.paid_by)}</span>
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-1.5 lg:gap-3 shrink-0">
+                            <div className="flex items-center gap-1.5 lg:gap-2 shrink-0">
                               <div className="text-right">
-                                <p className="font-mono font-bold text-text-primary text-sm lg:text-base">₹{(expense.amount / 100).toFixed(2)}</p>
-                                {expense.notes && <p className="text-[10px] text-text-muted mt-0 max-w-[100px] lg:max-w-[120px] truncate">{expense.notes}</p>}
+                                <p className="font-mono font-bold text-text-primary text-sm lg:text-base">₹{(expense.amount / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                                {expense.notes && <p className="text-[10px] text-text-muted mt-0 max-w-[80px] lg:max-w-[100px] truncate">{expense.notes}</p>}
                               </div>
-                              <div className="flex flex-col items-center gap-0.5">
+                              <div className="flex flex-col items-center">
+                                {expense.created_by === user._id && (
+                                  <div className="relative">
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === expense._id ? null : expense._id) }}
+                                      className="text-text-muted hover:text-accent-red transition-colors p-0.5"
+                                      title="More actions"
+                                    >
+                                      <svg className="w-3 h-3 lg:w-3.5 lg:h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" />
+                                      </svg>
+                                    </button>
+                                    {menuOpenId === expense._id && (
+                                      <div className="absolute right-0 top-full z-20 min-w-[100px] rounded-lg overflow-hidden shadow-lg bg-surface-elevated border border-border">
+                                        <button
+                                          onClick={(e) => { e.stopPropagation(); handleDelete(expense._id); setMenuOpenId(null) }}
+                                          className="w-full flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-accent-red hover:bg-accent-red/10 transition-colors"
+                                        >
+                                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                          </svg>
+                                          Delete
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                                 <svg className={`w-3.5 h-3.5 lg:w-4 lg:h-4 text-text-muted transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
-                                {expense.created_by === user._id && (
-                                  <button onClick={(e) => { e.stopPropagation(); handleDelete(expense._id) }}
-                                    className="text-text-muted hover:text-accent-red transition-colors">
-                                    <svg className="w-3 h-3 lg:w-3.5 lg:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                  </button>
-                                )}
                               </div>
                             </div>
                           </div>
@@ -405,7 +425,7 @@ export default function ExpensesPage() {
                                                 <div className="w-5 h-5 rounded-full bg-accent-blue/15 flex items-center justify-center text-[10px] font-bold text-accent-blue shrink-0">{name.charAt(0)}</div>
                                                 <span className="text-text-secondary font-medium truncate">{name}</span>
                                               </div>
-                                              <span className="font-mono text-text-primary font-semibold shrink-0 whitespace-nowrap">₹{(split.amount / 100).toFixed(2)}</span>
+                                              <span className="font-mono text-text-primary font-semibold shrink-0 whitespace-nowrap">₹{(split.amount / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                             </div>
                                           )
                                         })}
@@ -476,7 +496,7 @@ export default function ExpensesPage() {
               <div className="grid grid-cols-2 gap-2 lg:gap-3">
                 <div>
                   <label className="block text-xs text-text-muted mb-0.5 lg:mb-1">Amount (INR)</label>
-                  <input type="number" className="input-field font-mono" placeholder="0.00" min="0.01" step="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required />
+                  <input type="number" className="input-field font-mono" placeholder="0" min="0.01" step="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block text-xs text-text-muted mb-0.5 lg:mb-1">Date</label>
@@ -558,7 +578,7 @@ export default function ExpensesPage() {
                   <div className="flex justify-between text-xs font-semibold pt-1.5 lg:pt-2 border-t border-border/20">
                     <span className="text-text-muted">Total Paid:</span>
                     <span className={Math.abs(totalAllocatedPayers - parseFloat(form.amount || 0)) < 0.01 ? 'text-accent-green' : 'text-accent-red'}>
-                      ₹{totalAllocatedPayers.toFixed(2)} / ₹{parseFloat(form.amount || 0).toFixed(2)}
+                      ₹{totalAllocatedPayers.toLocaleString('en-IN', { maximumFractionDigits: 0 })} / ₹{parseFloat(form.amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </span>
                   </div>
                 </div>

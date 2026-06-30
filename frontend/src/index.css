@@ -138,7 +138,7 @@
   .card {
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    padding: var(--space-24px);
+    padding: var(--space-16px);
     background: var(--color-surface-elevated);
     transition: background-color var(--transition-medium), border-color var(--transition-medium), box-shadow var(--transition-medium);
     box-shadow: var(--shadow-card);

@@ -109,7 +109,7 @@ export default function BudgetPage() {
         <motion.div initial="initial" animate="animate" variants={stagger} className="space-y-6">
           {/* Budget Health Hero */}
           <motion.div variants={fadeUp} className={`card border-2 ${data.health === 'over_budget' ? 'border-accent-red/20' : data.health === 'near_limit' || data.health === 'at_budget' ? 'border-accent-amber/20' : 'border-accent-green/20'}`}>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 lg:gap-4">
               <div className="md:col-span-1 space-y-1 lg:space-y-2">
                 <p className="text-xs text-text-muted font-medium uppercase tracking-wider">Budget Health</p>
                 <p className={`text-xl lg:text-2xl font-bold ${health?.class || 'text-accent-green'}`}>{health?.icon} {health?.label}</p>
@@ -152,7 +152,7 @@ export default function BudgetPage() {
           </motion.div>
 
           {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4">
             <motion.div variants={fadeUp} className="card lg:col-span-2">
               <h3 className="font-heading text-base text-text-primary mb-4 flex items-center gap-2">
                 <svg className="w-4 h-4 text-accent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
@@ -233,7 +233,7 @@ export default function BudgetPage() {
           )}
 
           {/* Top Spenders + History */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
             {data?.top_spenders?.length > 0 && (
               <motion.div variants={fadeUp} className="card">
                 <h3 className="font-heading text-base text-text-primary mb-4 flex items-center gap-2">
@@ -256,7 +256,7 @@ export default function BudgetPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-text-muted font-mono">#{i + 1}</span>
-                        <span className="font-mono font-bold text-accent-amber">₹{(s.total / 100).toFixed(2)}</span>
+                          <span className="font-mono font-bold text-accent-amber">₹{(s.total / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                       </div>
                     </div>
                   ))}
@@ -286,9 +286,9 @@ export default function BudgetPage() {
                               <span className="text-xs font-semibold text-text-primary">{h.updated_by_name || 'Unknown'}</span>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className="font-mono text-sm text-accent-red line-through">₹{(h.old_amount / 100).toFixed(0)}</span>
+                              <span className="font-mono text-sm text-accent-red line-through">₹{(h.old_amount / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                               <svg className="w-5 h-5 text-accent-green shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-                              <span className="font-mono text-lg font-bold text-accent-green">₹{(h.new_amount / 100).toFixed(0)}</span>
+                              <span className="font-mono text-lg font-bold text-accent-green">₹{(h.new_amount / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                             </div>
                             {h.reason && <p className="text-xs text-text-secondary mt-2 italic">"{h.reason}"</p>}
                             {date && <p className="text-[10px] text-text-muted mt-2 font-mono">{date.toLocaleString(undefined, { hour: '2-digit', minute: '2-digit' })}</p>}

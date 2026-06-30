@@ -170,10 +170,8 @@ export default function OtpVerificationPage() {
 
       {/* Theme Toggle */}
       <div className="fixed top-6 right-6 z-50">
-        <motion.button
+        <button
           onClick={toggleTheme}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
           className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
             isDark
               ? 'bg-white/[0.06] border border-white/[0.08] text-yellow-400 hover:bg-white/[0.1]'
@@ -190,18 +188,15 @@ export default function OtpVerificationPage() {
               <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
             </svg>
           )}
-        </motion.button>
+        </button>
       </div>
 
       {/* Center Layout */}
       <div className="relative z-10 min-h-screen flex items-center justify-center px-6 py-12">
         <AnimatePresence mode="wait">
           {showProfileStep ? (
-            <motion.div
+            <div
               key="profile"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-md"
             >
               <div className={`
@@ -223,19 +218,14 @@ export default function OtpVerificationPage() {
                 }`} />
 
                 <div className="relative z-10">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                    className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 ${
-                      isDark ? 'bg-accent-blue/15' : 'bg-blue-50'
-                    }`}
-                  >
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 ${
+                    isDark ? 'bg-accent-blue/15' : 'bg-blue-50'
+                  }`}>
                     <svg className={`w-8 h-8 ${isDark ? 'text-accent-blue' : 'text-blue-500'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </svg>
-                  </motion.div>
+                  </div>
 
                   <h2 className={`text-xl font-heading font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     Complete Your Profile
@@ -285,11 +275,9 @@ export default function OtpVerificationPage() {
                     </p>
 
                     <div className="flex gap-3 w-full">
-                      <motion.button
+                      <button
                         onClick={handleSkip}
                         disabled={uploading}
-                        whileHover={{ scale: 1.01 }}
-                        whileTap={{ scale: 0.99 }}
                         className={`flex-1 font-semibold py-3 px-6 rounded-xl transition-all duration-300 text-sm ${
                           isDark
                             ? 'bg-white/[0.06] border border-white/[0.08] text-slate-300 hover:bg-white/[0.1]'
@@ -297,12 +285,10 @@ export default function OtpVerificationPage() {
                         } disabled:opacity-40 disabled:cursor-not-allowed`}
                       >
                         Skip
-                      </motion.button>
-                      <motion.button
+                      </button>
+                      <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploading}
-                        whileHover={{ scale: 1.01 }}
-                        whileTap={{ scale: 0.99 }}
                         className={`flex-1 font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center text-sm ${
                           isDark
                             ? 'bg-gradient-to-r from-accent-blue to-accent-indigo hover:from-blue-400 hover:to-indigo-400 text-white shadow-lg shadow-accent-blue/20'
@@ -320,12 +306,12 @@ export default function OtpVerificationPage() {
                         ) : (
                           'Choose Photo'
                         )}
-                      </motion.button>
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ) : success ? (
             <motion.div
               key="success"
@@ -415,7 +401,7 @@ export default function OtpVerificationPage() {
 
                   <form onSubmit={handleVerify} className="space-y-8">
                     {/* OTP Inputs */}
-                    <div className="flex gap-3 justify-center">
+                    <div className="flex gap-2 justify-center px-1">
                       {otp.map((digit, i) => (
                         <motion.input
                           key={i}
@@ -427,7 +413,7 @@ export default function OtpVerificationPage() {
                           onChange={e => handleChange(i, e.target.value)}
                           onKeyDown={e => handleKeyDown(i, e)}
                           whileFocus={{ scale: 1.02 }}
-                          className={`w-12 h-14 sm:w-14 sm:h-16 text-center text-xl font-bold rounded-xl border outline-none transition-all duration-300 ${
+                          className={`w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold rounded-xl border outline-none transition-all duration-300 ${
                             digit
                               ? isDark
                                 ? 'border-accent-blue/50 bg-white/[0.06] text-white shadow-[0_0_0_3px_rgba(59,130,246,0.1)]'

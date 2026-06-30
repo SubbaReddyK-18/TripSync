@@ -374,8 +374,8 @@ export default function DashboardPage() {
   const sortedTrips = [...trips].sort((a, b) => getProximity(a) - getProximity(b))
   const nearbyTrips = sortedTrips.slice(0, 5)
 
-  const totalSpent = overview ? (overview.total_spent / 100).toFixed(2) : '0.00'
-  const totalBudgetVal = overview ? (overview.total_budget / 100).toFixed(2) : '0.00'
+  const totalSpent = overview ? (overview.total_spent / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'
+  const totalBudgetVal = overview ? (overview.total_budget / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 }) : '0'
 
   // Compute filter boundaries based on selected range
   const now = new Date()
@@ -561,12 +561,19 @@ export default function DashboardPage() {
       const avg = nonZeroEntries.length > 0
         ? entries.reduce((s, e) => s + e.total, 0) / nonZeroEntries.length
         : 0
-      const highestSingle = Math.max(...dashboardExpenses.map(e => Math.round(e.amount / 100)), 0)
+      const amounts = dashboardExpenses.map(e => Math.round(e.amount / 100))
+      const highestSingle = Math.max(...amounts, 0)
+      const lowestSingle = amounts.length > 0 ? Math.min(...amounts) : 0
+      const totalSpending = entries.reduce((s, e) => s + e.total, 0)
+      const lowestExp = dashboardExpenses.reduce((a, b) => Math.round(a.amount / 100) < Math.round(b.amount / 100) ? a : b, dashboardExpenses[0])
       return {
         highest: { label: maxEntry.label, value: maxEntry.total },
         lowest: { label: minEntry.label, value: minEntry.total },
-        average: avg,
+        average: dashboardExpenses.length > 0 ? totalSpending / dashboardExpenses.length : 0,
         highestSingle,
+        lowestSingle,
+        lowestSingleTitle: lowestExp?.title || lowestExp?.category || '—',
+        totalSpending,
         unit: 'hour'
       }
     }
@@ -586,27 +593,27 @@ export default function DashboardPage() {
       }
     }
     if (range === 'month') {
-      const dateTotals = {}
+      const weeklyTotals = { 'Week 1': 0, 'Week 2': 0, 'Week 3': 0, 'Week 4': 0, 'Week 5': 0 }
       dashboardExpenses.forEach(e => {
         const d = new Date(e.date || e.created_at)
-        const key = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-        if (!dateTotals[key]) dateTotals[key] = 0
-        dateTotals[key] += Math.round(e.amount / 100)
+        const day = d.getDate()
+        const weekIdx = Math.min(Math.floor((day - 1) / 7), 4)
+        const label = `Week ${weekIdx + 1}`
+        weeklyTotals[label] += Math.round(e.amount / 100)
       })
-      const dateEntries = Object.entries(dateTotals).map(([label, total]) => ({ label, total }))
-      if (dateEntries.length === 0) return null
-      const maxEntry = dateEntries.reduce((a, b) => a.total > b.total ? a : b)
-      const nonZeroEntries = dateEntries.filter(e => e.total > 0)
-      const minEntry = nonZeroEntries.length > 0 ? nonZeroEntries.reduce((a, b) => a.total < b.total ? a : b) : dateEntries[0]
-      const total = dateEntries.reduce((s, e) => s + e.total, 0)
-      const avg = total / dateEntries.length
+      const weekEntries = Object.entries(weeklyTotals).filter(([, v]) => v > 0).map(([label, total]) => ({ label, total }))
+      if (weekEntries.length === 0) return null
+      const maxEntry = weekEntries.reduce((a, b) => a.total > b.total ? a : b)
+      const minEntry = weekEntries.reduce((a, b) => a.total < b.total ? a : b)
+      const totalSpent = weekEntries.reduce((s, e) => s + e.total, 0)
+      const avg = totalSpent / weekEntries.length
       const highestSingle = Math.max(...dashboardExpenses.map(e => Math.round(e.amount / 100)), 0)
       return {
         highest: { label: maxEntry.label, value: maxEntry.total },
         lowest: { label: minEntry.label, value: minEntry.total },
         average: avg,
         highestSingle,
-        unit: 'day'
+        unit: 'week'
       }
     }
     if (range === 'year') {
@@ -697,7 +704,7 @@ export default function DashboardPage() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-      className="w-full max-w-full space-y-4 lg:space-y-6"
+      className="w-full max-w-full space-y-3 lg:space-y-4"
       >
         {/* Hero Section */}
         <div className={`relative overflow-hidden rounded-[32px] p-8 lg:p-10 ${isDark
@@ -912,7 +919,7 @@ export default function DashboardPage() {
                       <Tooltip
                         formatter={(value, name, props) => {
                           const pct = props.payload.percentage || 0
-                          return [`₹${(value / 100).toFixed(2)} (${pct}%)`, name]
+                          return [`₹${(value / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })} (${pct}%)`, name]
                         }}
                         contentStyle={{
                           backgroundColor: isDark ? '#1e293b' : '#fff',
@@ -931,7 +938,7 @@ export default function DashboardPage() {
                           <span className={`text-xs font-medium truncate ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{entry.category}</span>
                         </div>
                         <span className={`text-xs font-mono shrink-0 ml-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                          ₹{(entry.total / 100).toFixed(2)} · {entry.percentage}%
+                          ₹{(entry.total / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })} · {entry.percentage}%
                         </span>
                       </div>
                     ))}
@@ -1001,7 +1008,7 @@ export default function DashboardPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="w-full max-w-full space-y-4 lg:space-y-6"
+      className="w-full max-w-full space-y-3 lg:space-y-4"
     >
       {/* ====== ROW 1: HERO SECTION ====== */}
       <div className={`relative overflow-hidden rounded-[32px] p-4 lg:p-6 backdrop-blur-sm ${isDark
@@ -1152,14 +1159,14 @@ export default function DashboardPage() {
           {/* ====== ROW 3: CHARTS / TRIPS ====== */}
           {/* DAY: [Spending Trend 65%] [My Trips 35%] */}
           {range === 'day' && (
-            <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-3">
               {/* Spending Trend */}
-              <div className={`rounded-2xl p-4 lg:p-5 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-                <h3 className={`text-sm font-heading font-semibold mb-2 lg:mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              <div className={`rounded-2xl p-3 lg:p-4 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                <h3 className={`text-sm font-heading font-semibold mb-1.5 lg:mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   Spending Trend
                 </h3>
                 {((spendingTrendEntries.data || []).some((e) => e.total > 0)) ? (
-                  <div className="h-[160px] lg:h-[240px]"><ResponsiveContainer width="100%" height="100%">
+                  <div className="h-[140px] lg:h-[200px]"><ResponsiveContainer width="100%" height="100%">
                     <LineChart data={spendingTrendEntries.data}>
                       <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} />
                       <XAxis dataKey="label" stroke={isDark ? '#475569' : '#94a3b8'} fontSize={11} />
@@ -1184,13 +1191,30 @@ export default function DashboardPage() {
                   </div>
                 )}
                   {spendingTrendSummary && (
-                    <div className={`mt-3 pt-3 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
-                      <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
-                        <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Highest Single Expense</p>
-                        <p className={`text-xs font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                          {topExpense?.title || topExpense?.category || '—'}
-                          <span className={`text-[10px] font-mono ml-1.5 ${isDark ? 'text-accent-green' : 'text-green-600'}`}> - ₹{(topExpense?.amount || 0).toLocaleString('en-IN')}</span>
-                        </p>
+                    <div className={`mt-2 pt-2 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Highest Single Expense</p>
+                          <p className={`text-xs font-bold mt-0.5 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            {topExpense?.title || topExpense?.category || '—'}
+                            <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-accent-green' : 'text-green-600'}`}>- ₹{(topExpense?.amount || 0).toLocaleString('en-IN')}</span>
+                          </p>
+                        </div>
+                        <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Lowest Single Expense</p>
+                          <p className={`text-xs font-bold mt-0.5 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            {spendingTrendSummary.lowestSingleTitle || '—'}
+                            <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-accent-red' : 'text-red-500'}`}>- ₹{(spendingTrendSummary.lowestSingle || 0).toLocaleString('en-IN')}</span>
+                          </p>
+                        </div>
+                        <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Total Spending</p>
+                          <p className={`text-xs font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>₹{(spendingTrendSummary.totalSpending || 0).toLocaleString('en-IN')}</p>
+                        </div>
+                        <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+                          <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Average Expense</p>
+                          <p className={`text-xs font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>₹{Math.round(spendingTrendSummary.average || 0).toLocaleString('en-IN')}</p>
+                        </div>
                       </div>
                     </div>
                     )}
@@ -1211,14 +1235,14 @@ export default function DashboardPage() {
 
           {/* WEEK: [Expense Distribution 50%] [Spending Trend 50%] */}
           {range === 'week' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               {/* Expense Distribution */}
               {categoryChartEntries.length > 0 ? (
-                <div className={`rounded-2xl p-4 lg:p-5 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                <div className={`rounded-2xl p-3 lg:p-4 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
                   <h3 className={`text-sm font-heading font-semibold mb-2 lg:mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     Expense Distribution
                   </h3>
-                  <ResponsiveContainer width="100%" height={260}>
+                  <ResponsiveContainer width="100%" height={220}>
                     <PieChart>
                       <Pie data={categoryChartEntries} cx="50%" cy="50%" outerRadius={110} dataKey="total" nameKey="category" labelLine={false} animationBegin={200} animationDuration={800}>
                         {categoryChartEntries.map((_, i) => (
@@ -1227,7 +1251,7 @@ export default function DashboardPage() {
                       </Pie>
                       <Tooltip formatter={(value, name) => {
                         const total = categoryChartEntries.reduce((s, e) => s + e.total, 0)
-                        return [`₹${(value / 100).toFixed(2)} (${((value / total) * 100).toFixed(1)}%)`, name]
+                        return [`₹${(value / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })} (${((value / total) * 100).toFixed(1)}%)`, name]
                       }} contentStyle={{
                         backgroundColor: isDark ? '#1e293b' : '#fff',
                         border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
@@ -1245,7 +1269,7 @@ export default function DashboardPage() {
                             <span className={`text-[11px] font-medium truncate ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{entry.category}</span>
                           </div>
                           <span className={`text-[11px] font-mono shrink-0 ml-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                            ₹{(entry.total / 100).toFixed(2)} · {((entry.total / total) * 100).toFixed(1)}%
+                            ₹{(entry.total / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })} · {((entry.total / total) * 100).toFixed(1)}%
                           </span>
                         </div>
                       )
@@ -1253,7 +1277,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ) : (
-                <div className={`rounded-2xl p-4 lg:p-5 transition-colors h-full flex flex-col items-center justify-center ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                <div className={`rounded-2xl p-3 lg:p-4 transition-colors h-full flex flex-col items-center justify-center ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-2 ${isDark ? 'bg-white/[0.04]' : 'bg-slate-50'}`}>
                     🥧
                   </div>
@@ -1262,13 +1286,13 @@ export default function DashboardPage() {
               )}
 
               {/* Spending Trend */}
-              <div className={`rounded-2xl p-4 lg:p-5 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+              <div className={`rounded-2xl p-3 lg:p-4 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
                 <h3 className={`text-sm font-heading font-semibold mb-2 lg:mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   Spending Trend
                 </h3>
                 {((spendingTrendEntries.data || []).some((e) => e.total > 0)) ? (
                   <>
-                    <div className="h-[160px] lg:h-[240px]"><ResponsiveContainer width="100%" height="100%">
+                    <div className="h-[140px] lg:h-[200px]"><ResponsiveContainer width="100%" height="100%">
                       <LineChart data={spendingTrendEntries.data}>
                         <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} />
                         <XAxis dataKey="label" stroke={isDark ? '#475569' : '#94a3b8'} fontSize={11} />
@@ -1280,8 +1304,8 @@ export default function DashboardPage() {
                       </LineChart>
                     </ResponsiveContainer></div>
                     {spendingTrendSummary && (
-                      <div className={`mt-3 pt-3 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
-                        <div className="grid grid-cols-2 gap-2 lg:gap-3">
+                      <div className={`mt-2 pt-2 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
+                        <div className="grid grid-cols-2 gap-1.5 lg:gap-2">
                           <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Highest Spending Day</p>
                             <p className={`text-xs font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
@@ -1327,7 +1351,7 @@ export default function DashboardPage() {
           {(range === 'month' || range === 'year' || range === 'all') && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
               {/* Expense Distribution */}
-                <div className={`rounded-2xl p-4 lg:p-5 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                <div className={`rounded-2xl p-3 lg:p-4 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
                   <h3 className={`text-sm font-heading font-semibold mb-2 lg:mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     Expense Distribution
                   </h3>
@@ -1342,7 +1366,7 @@ export default function DashboardPage() {
                           </Pie>
                           <Tooltip formatter={(value, name) => {
                             const total = categoryChartEntries.reduce((s, e) => s + e.total, 0)
-                            return [`₹${(value / 100).toFixed(2)} (${((value / total) * 100).toFixed(1)}%)`, name]
+                            return [`₹${(value / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })} (${((value / total) * 100).toFixed(1)}%)`, name]
                           }} contentStyle={{
                             backgroundColor: isDark ? '#1e293b' : '#fff',
                             border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
@@ -1360,7 +1384,7 @@ export default function DashboardPage() {
                               <span className={`text-[11px] font-medium truncate ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{entry.category}</span>
                             </div>
                             <span className={`text-[11px] font-mono shrink-0 ml-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                              ₹{(entry.total / 100).toFixed(2)} · {((entry.total / total) * 100).toFixed(1)}%
+                              ₹{(entry.total / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })} · {((entry.total / total) * 100).toFixed(1)}%
                             </span>
                           </div>
                         )
@@ -1378,7 +1402,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Spending Trend */}
-              <div className={`rounded-2xl p-4 lg:p-5 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+              <div className={`rounded-2xl p-3 lg:p-4 transition-colors h-full ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
                 <div className="flex items-center justify-between mb-2 lg:mb-3">
                   <h3 className={`text-sm font-heading font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {spendingTrendTitle}
@@ -1408,7 +1432,7 @@ export default function DashboardPage() {
                 </div>
                 {((spendingTrendEntries.data || []).some((e) => e.total > 0)) ? (
                   <>
-                    <div className="h-[160px] lg:h-[240px]"><ResponsiveContainer width="100%" height="100%">
+                    <div className="h-[140px] lg:h-[200px]"><ResponsiveContainer width="100%" height="100%">
                       {(range === 'all' && spendingTrendEntries.type === 'year') ? (
                         <BarChart data={spendingTrendEntries.data}>
                           <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} />
@@ -1447,37 +1471,37 @@ export default function DashboardPage() {
                       )}
                     </ResponsiveContainer></div>
                     {spendingTrendSummary && (
-                      <div className={`mt-3 pt-3 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
+                      <div className={`mt-2 pt-2 border-t ${isDark ? 'border-white/[0.06]' : 'border-slate-100'}`}>
                         <div className="grid grid-cols-2 gap-2">
                           <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                              {range === 'month' ? 'Highest Spending Day' : 'Highest Spending Month'}
+                              {range === 'month' ? 'Highest Spending Week' : range === 'year' ? 'Highest Spending Month' : 'Highest Spending Month'}
                             </p>
-                            <p className={`text-xs font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <p className={`text-xs font-bold mt-0.5 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {spendingTrendSummary.highest.label}
                               <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-accent-green' : 'text-green-600'}`}>- ₹{spendingTrendSummary.highest.value.toLocaleString('en-IN')}</span>
                             </p>
                           </div>
                           <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                              {range === 'month' ? 'Lowest Spending Day' : 'Lowest Spending Month'}
+                              {range === 'month' ? 'Lowest Spending Week' : range === 'year' ? 'Lowest Spending Month' : 'Lowest Spending Month'}
                             </p>
-                            <p className={`text-xs font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <p className={`text-xs font-bold mt-0.5 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {spendingTrendSummary.lowest.label}
                               <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-accent-red' : 'text-red-500'}`}>- ₹{spendingTrendSummary.lowest.value.toLocaleString('en-IN')}</span>
                             </p>
                           </div>
                           <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                              {range === 'month' ? 'Average Daily Spending' : 'Average Monthly Spending'}
+                              {range === 'month' ? 'Average Weekly Spending' : range === 'year' ? 'Average Monthly Spending' : 'Average Monthly Spending'}
                             </p>
-                            <p className={`text-xs font-bold mt-1 ${isDark ? 'text-white' : 'text-slate-900'}`}> 
+                            <p className={`text-xs font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}> 
                               ₹{Math.round(spendingTrendSummary.average).toLocaleString('en-IN')}
                             </p>
                           </div>
                           <div className={`p-2 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
                             <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Highest Single Expense</p>
-                            <p className={`text-xs font-bold mt-1 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <p className={`text-xs font-bold mt-0.5 truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {topExpense?.title || topExpense?.category || '—'}
                               <span className={`text-[10px] font-mono ml-1 ${isDark ? 'text-accent-green' : 'text-green-600'}`}>- ₹{(topExpense?.amount || 0).toLocaleString('en-IN')}</span>
                             </p>
@@ -1500,7 +1524,7 @@ export default function DashboardPage() {
 
           {/* ====== ROW 4: SETTLEMENTS 65% + ACTIVITY 35% ====== */}
           {(range === 'day' || range === 'week') && (
-            <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-3">
               <SettlementsCard settlements={settlements} isDark={isDark} />
               <RecentActivityCard recentActivity={recentActivity} isDark={isDark} />
             </div>
@@ -1582,8 +1606,8 @@ export default function DashboardPage() {
 
 function MyTripsCard({ trips, tripsLoading, displayTrips, systemConfig, setShowCreate, isDark, statusColors }) {
   return (
-                <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full flex flex-col ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-                  <div className="flex items-center justify-between mb-4 shrink-0">
+                <div className={`rounded-3xl p-3 lg:p-4 transition-colors h-full flex flex-col ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+                  <div className="flex items-center justify-between mb-3 shrink-0">
                     <h3 className={`text-sm font-heading font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>My Trips</h3>
         {trips.length > 3 && (
           <Link to="/trips" className={`text-xs font-medium transition-colors ${isDark ? 'text-accent-blue hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}>
@@ -1615,10 +1639,10 @@ function MyTripsCard({ trips, tripsLoading, displayTrips, systemConfig, setShowC
           <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>No active trips to display</p>
         </div>
       ) : displayTrips.length >= 3 ? (
-        <div className="flex-1 flex flex-col justify-center space-y-3">
+        <div className="flex-1 flex flex-col justify-center space-y-2">
           {displayTrips.map((trip) => (
             <Link key={trip._id} to={`/trips/${trip._id}`}
-              className={`block p-3.5 rounded-xl transition-all duration-200 ${isDark
+              className={`block p-2.5 rounded-xl transition-all duration-200 ${isDark
                 ? 'bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.04]'
                 : 'bg-slate-50/50 hover:bg-slate-100/60 border border-slate-100'
                 }`}>
@@ -1643,7 +1667,7 @@ function MyTripsCard({ trips, tripsLoading, displayTrips, systemConfig, setShowC
                 )}
                 {trip.total_budget > 0 && (
                   <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>
-                    💰 ₹{(trip.total_budget / 100).toFixed(0)}
+                    💰 ₹{(trip.total_budget / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </span>
                 )}
               </div>
@@ -1651,10 +1675,10 @@ function MyTripsCard({ trips, tripsLoading, displayTrips, systemConfig, setShowC
           ))}
         </div>
       ) : displayTrips.length === 2 ? (
-        <div className="flex-1 flex flex-col gap-3">
+        <div className="flex-1 flex flex-col gap-2">
           {displayTrips.map((trip) => (
             <Link key={trip._id} to={`/trips/${trip._id}`}
-              className={`flex-1 flex flex-col justify-center p-5 rounded-xl transition-all duration-200 ${isDark
+              className={`flex-1 flex flex-col justify-center p-3 rounded-xl transition-all duration-200 ${isDark
                 ? 'bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.04]'
                 : 'bg-slate-50/50 hover:bg-slate-100/60 border border-slate-100'
                 }`}>
@@ -1679,7 +1703,7 @@ function MyTripsCard({ trips, tripsLoading, displayTrips, systemConfig, setShowC
                 )}
                 {trip.total_budget > 0 && (
                   <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>
-                    💰 ₹{(trip.total_budget / 100).toFixed(0)}
+                    💰 ₹{(trip.total_budget / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </span>
                 )}
               </div>
@@ -1689,7 +1713,7 @@ function MyTripsCard({ trips, tripsLoading, displayTrips, systemConfig, setShowC
       ) : (
         <div className="flex-1 flex flex-col">
           <Link key={displayTrips[0]._id} to={`/trips/${displayTrips[0]._id}`}
-            className={`flex-[0.55] flex flex-col justify-center p-5 rounded-xl transition-all duration-200 ${isDark
+            className={`flex-[0.55] flex flex-col justify-center p-3 rounded-xl transition-all duration-200 ${isDark
               ? 'bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.04]'
               : 'bg-slate-50/50 hover:bg-slate-100/60 border border-slate-100'
               }`}>
@@ -1714,7 +1738,7 @@ function MyTripsCard({ trips, tripsLoading, displayTrips, systemConfig, setShowC
               )}
               {displayTrips[0].total_budget > 0 && (
                 <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>
-                  💰 ₹{(displayTrips[0].total_budget / 100).toFixed(0)}
+                   💰 ₹{(displayTrips[0].total_budget / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                 </span>
               )}
             </div>
@@ -1737,8 +1761,8 @@ function SettlementsCard({ settlements, isDark }) {
   const oweOverflow = settlements.i_owe?.length > 4 ? settlements.i_owe.length - 4 : 0
   const owedOverflow = settlements.owed_to_me?.length > 4 ? settlements.owed_to_me.length - 4 : 0
   return (
-    <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full flex flex-col ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-      <div className="flex items-center justify-between mb-4 shrink-0">
+    <div className={`rounded-3xl p-3 lg:p-4 transition-colors h-full flex flex-col ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+      <div className="flex items-center justify-between mb-3 shrink-0">
         <h3 className={`text-sm font-heading font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
           Settlements
         </h3>
@@ -1749,22 +1773,22 @@ function SettlementsCard({ settlements, isDark }) {
         )}
       </div>
       {hasSettlements ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 min-h-0">
-          <div className={`p-3.5 rounded-xl flex flex-col min-h-0 ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
-            <h4 className={`text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-1.5 shrink-0 ${isDark ? 'text-accent-red' : 'text-red-500'}`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 min-h-0">
+          <div className={`p-3 rounded-xl flex flex-col min-h-0 ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+            <h4 className={`text-xs font-semibold uppercase tracking-wider mb-1.5 flex items-center gap-1.5 shrink-0 ${isDark ? 'text-accent-red' : 'text-red-500'}`}>
               <span className="w-1.5 h-1.5 rounded-full bg-current" />
               You Owe
             </h4>
             {settlements.i_owe.length > 0 ? (
-              <div className="space-y-1.5 flex-1 overflow-hidden">
+              <div className="space-y-1 flex-1 overflow-hidden">
                 {settlements.i_owe.slice(0, 4).map((s) => (
-                  <div key={s._id} className={`flex items-center justify-between py-1.5 border-b last:border-0 ${isDark ? 'border-white/[0.04]' : 'border-slate-100'}`}>
+                  <div key={s._id} className={`flex items-center justify-between py-1 border-b last:border-0 ${isDark ? 'border-white/[0.04]' : 'border-slate-100'}`}>
                     <div className="min-w-0 flex-1">
                       <p className={`text-xs font-medium truncate ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{s.other_user}</p>
                       <p className={`text-[10px] truncate ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{s.trip_title}</p>
                     </div>
                     <span className={`font-mono text-xs font-bold shrink-0 ml-2 ${isDark ? 'text-accent-red' : 'text-red-500'}`}>
-                      ₹{(s.amount / 100).toFixed(2)}
+                      ₹{(s.amount / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </span>
                   </div>
                 ))}
@@ -1773,11 +1797,11 @@ function SettlementsCard({ settlements, isDark }) {
               <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Nothing owed</p>
             )}
             {totalOwe > 0 && (
-              <div className={`mt-2 pt-2 border-t shrink-0 ${isDark ? 'border-white/[0.04]' : 'border-slate-100'}`}>
+              <div className={`mt-1.5 pt-1.5 border-t shrink-0 ${isDark ? 'border-white/[0.04]' : 'border-slate-100'}`}>
                 <div className="flex items-center justify-between">
                   <span className={`text-[10px] font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Total</span>
                   <span className={`text-xs font-bold font-mono ${isDark ? 'text-accent-red' : 'text-red-500'}`}>
-                    ₹{(totalOwe / 100).toFixed(2)}
+            ₹{(totalOwe / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </span>
                 </div>
               </div>
@@ -1788,21 +1812,21 @@ function SettlementsCard({ settlements, isDark }) {
               </p>
             )}
           </div>
-          <div className={`p-3.5 rounded-xl flex flex-col min-h-0 ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
-            <h4 className={`text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-1.5 shrink-0 ${isDark ? 'text-accent-green' : 'text-green-500'}`}>
+          <div className={`p-3 rounded-xl flex flex-col min-h-0 ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+            <h4 className={`text-xs font-semibold uppercase tracking-wider mb-1.5 flex items-center gap-1.5 shrink-0 ${isDark ? 'text-accent-green' : 'text-green-500'}`}>
               <span className="w-1.5 h-1.5 rounded-full bg-current" />
               Owed to You
             </h4>
             {settlements.owed_to_me.length > 0 ? (
-              <div className="space-y-1.5 flex-1 overflow-hidden">
+              <div className="space-y-1 flex-1 overflow-hidden">
                 {settlements.owed_to_me.slice(0, 4).map((s) => (
-                  <div key={s._id} className={`flex items-center justify-between py-1.5 border-b last:border-0 ${isDark ? 'border-white/[0.04]' : 'border-slate-100'}`}>
+                  <div key={s._id} className={`flex items-center justify-between py-1 border-b last:border-0 ${isDark ? 'border-white/[0.04]' : 'border-slate-100'}`}>
                     <div className="min-w-0 flex-1">
                       <p className={`text-xs font-medium truncate ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{s.other_user}</p>
                       <p className={`text-[10px] truncate ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{s.trip_title}</p>
                     </div>
                     <span className={`font-mono text-xs font-bold shrink-0 ml-2 ${isDark ? 'text-accent-green' : 'text-green-500'}`}>
-                      ₹{(s.amount / 100).toFixed(2)}
+                      ₹{(s.amount / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </span>
                   </div>
                 ))}
@@ -1811,11 +1835,11 @@ function SettlementsCard({ settlements, isDark }) {
               <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Nothing owed to you</p>
             )}
             {totalOwed > 0 && (
-              <div className={`mt-2 pt-2 border-t shrink-0 ${isDark ? 'border-white/[0.04]' : 'border-slate-100'}`}>
+              <div className={`mt-1.5 pt-1.5 border-t shrink-0 ${isDark ? 'border-white/[0.04]' : 'border-slate-100'}`}>
                 <div className="flex items-center justify-between">
                   <span className={`text-[10px] font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Total</span>
                   <span className={`text-xs font-bold font-mono ${isDark ? 'text-accent-green' : 'text-green-500'}`}>
-                    ₹{(totalOwed / 100).toFixed(2)}
+                    ₹{(totalOwed / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </span>
                 </div>
               </div>
@@ -1845,26 +1869,26 @@ function SettlementSummaryCard({ settlements, isDark, rangeCaption }) {
   const totalOwed = settlements.owed_to_me?.reduce((s, item) => s + item.amount, 0) || 0
   const pendingCount = (settlements.i_owe?.length || 0) + (settlements.owed_to_me?.length || 0)
   return (
-    <div className={`rounded-3xl p-4 lg:p-6 transition-colors ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-      <h3 className={`text-sm font-heading font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+    <div className={`rounded-3xl p-3 lg:p-4 transition-colors ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+      <h3 className={`text-sm font-heading font-semibold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
         Settlement Summary
       </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className={`p-4 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
-          <p className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Total You Owe</p>
-          <p className={`text-xl font-bold font-mono ${isDark ? 'text-accent-red' : 'text-red-500'}`}>
-            ₹{(totalOwe / 100).toFixed(2)}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+          <p className={`text-[10px] font-semibold uppercase tracking-wider mb-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Total You Owe</p>
+          <p className={`text-base lg:text-lg font-bold font-mono ${isDark ? 'text-accent-red' : 'text-red-500'}`}>
+             ₹{(totalOwe / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
           </p>
         </div>
-        <div className={`p-4 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
-          <p className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Total Owed to You</p>
-          <p className={`text-xl font-bold font-mono ${isDark ? 'text-accent-green' : 'text-green-500'}`}>
-            ₹{(totalOwed / 100).toFixed(2)}
+        <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+          <p className={`text-[10px] font-semibold uppercase tracking-wider mb-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Total Owed to You</p>
+          <p className={`text-base lg:text-lg font-bold font-mono ${isDark ? 'text-accent-green' : 'text-green-500'}`}>
+            ₹{(totalOwed / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
           </p>
         </div>
-        <div className={`p-4 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
-          <p className={`text-[10px] font-semibold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Pending Settlements</p>
-          <p className={`text-xl font-bold font-mono ${isDark ? 'text-white' : 'text-slate-900'}`}>
+        <div className={`p-3 rounded-xl ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50/50'}`}>
+          <p className={`text-[10px] font-semibold uppercase tracking-wider mb-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Pending Settlements</p>
+          <p className={`text-base lg:text-lg font-bold font-mono ${isDark ? 'text-white' : 'text-slate-900'}`}>
             {pendingCount}
           </p>
         </div>
@@ -1905,8 +1929,8 @@ function RecentActivityCard({ recentActivity, isDark }) {
   }
 
   return (
-    <div className={`rounded-3xl p-4 lg:p-6 transition-colors h-full flex flex-col ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
-      <div className="flex items-center justify-between mb-4 shrink-0">
+    <div className={`rounded-3xl p-3 lg:p-4 transition-colors h-full flex flex-col ${isDark ? 'bg-[#111827] border border-white/[0.06]' : 'bg-white border border-slate-200/60 shadow-sm'}`}>
+      <div className="flex items-center justify-between mb-3 shrink-0">
         <h3 className={`text-sm font-heading font-semibold flex items-center gap-1.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
           <svg className="w-4 h-4 text-accent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -1925,11 +1949,11 @@ function RecentActivityCard({ recentActivity, isDark }) {
           </div>
         ) : (
           <div className="flex-1 flex flex-col">
-            <div className="flex-1 space-y-1 overflow-hidden">
+            <div className="flex-1 space-y-0 overflow-hidden">
               {recentActivity.slice(0, 3).map((act) => (
-                <div key={act._id} className={`flex items-start gap-3 py-2 border-b last:border-0 ${isDark ? 'border-white/[0.04]' : 'border-slate-100'}`}>
-                  <div className="relative shrink-0 mt-0.5">
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700 flex items-center justify-center border border-slate-200/50 dark:border-white/10 shadow-xs">
+                <div key={act._id} className={`flex items-start gap-2 py-1 border-b last:border-0 ${isDark ? 'border-white/[0.04]' : 'border-slate-100'}`}>
+                  <div className="relative shrink-0">
+                    <div className="w-7 h-7 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700 flex items-center justify-center border border-slate-200/50 dark:border-white/10 shadow-xs">
                       {act.actor?.profile_photo_url ? (
                         <img 
                           src={act.actor.profile_photo_url} 
@@ -1937,24 +1961,24 @@ function RecentActivityCard({ recentActivity, isDark }) {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
+                        <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-300 uppercase">
                           {act.actor?.full_name ? act.actor.full_name.charAt(0) : 'U'}
                         </span>
                       )}
                     </div>
-                    <span className="absolute -bottom-1 -right-1 text-[10px] bg-white dark:bg-slate-800 rounded-full w-4 h-4 flex items-center justify-center shadow-xs border border-slate-100 dark:border-slate-700">
+                    <span className="absolute -bottom-1 -right-1 text-[8px] bg-white dark:bg-slate-800 rounded-full w-3.5 h-3.5 flex items-center justify-center shadow-xs border border-slate-100 dark:border-slate-700">
                       {getIcon(act)}
                     </span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className={`text-xs leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                    <p className={`text-xs leading-snug ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                       <span className="font-semibold">{you(user?._id, act.actor_id, act.actor?.full_name || 'Someone')}</span>
                       <span> {act.description ? act.description.charAt(0).toLowerCase() + act.description.slice(1) : ''}</span>
                       {act.trip_name && !act.description?.toLowerCase().includes(act.trip_name.toLowerCase()) && (
                         <span className={isDark ? 'text-slate-500' : 'text-slate-400'}> in {act.trip_name}</span>
                       )}
                     </p>
-                    <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{getTimeAgo(act.created_at)}</p>
+                    <p className={`text-[10px] mt-0 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{getTimeAgo(act.created_at)}</p>
                   </div>
                 </div>
               ))}
@@ -1962,7 +1986,7 @@ function RecentActivityCard({ recentActivity, isDark }) {
             {recentActivity.length > 3 && (
               <Link
                 to="/activity"
-                className={`block w-full text-center text-xs font-medium pt-2 shrink-0 transition-colors ${isDark ? 'text-accent-blue hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}
+                className={`block w-full text-center text-xs font-medium pt-1.5 shrink-0 transition-colors ${isDark ? 'text-accent-blue hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}
               >
                 View All →
               </Link>

@@ -148,41 +148,41 @@ export default function TripOverviewPage() {
     switch (activeTab) {
       case 'overview':
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            <div className="lg:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+            <div className="lg:col-span-2 space-y-4">
               {budgetHealth && renderBudgetHealth()}
               {balanceSheet.length > 0 && renderBalanceSheet()}
             </div>
-            <div className="space-y-6">
+            <div className="space-y-4">
               {renderActivity()}
             </div>
           </div>
         )
       case 'expenses':
         return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between mb-3">
               <p className="text-sm text-text-muted">Recent expenses across the trip</p>
               <Link to={`/trips/${tripId}/expenses`} className="text-sm font-semibold text-accent-blue hover:underline">
                 View All →
               </Link>
             </div>
             {expenses.length === 0 ? (
-              <div className="card text-center py-8 lg:py-12">
-                <div className="w-14 h-14 rounded-2xl bg-accent-amber/10 flex items-center justify-center mx-auto mb-3 text-2xl">💸</div>
+              <div className="card text-center py-6 lg:py-8">
+                <div className="w-12 h-12 rounded-2xl bg-accent-amber/10 flex items-center justify-center mx-auto mb-2 text-2xl">💸</div>
                 <p className="text-text-muted font-medium">No expenses yet</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {expenses.slice(0, 6).map((e) => {
                   const catColors = { food: 'bg-accent-amber/10 text-accent-amber', transport: 'bg-accent-blue/10 text-accent-blue', accommodation: 'bg-accent-green/10 text-accent-green', activity: 'bg-accent-purple/10 text-accent-purple', shopping: 'bg-accent-pink/10 text-accent-pink', medical: 'bg-accent-red/10 text-accent-red', other: 'bg-primary-lighter text-text-muted' }
                   const catEmojis = { food: '🍕', transport: '🚗', accommodation: '🏠', activity: '🎯', shopping: '🛍️', medical: '💊', other: '📋' }
                   const catClass = catColors[e.category] || catColors.other
                   return (
                     <div key={e._id} className="card hover:shadow-elevated transition-all duration-200">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base ${catClass}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm ${catClass}`}>
                             {catEmojis[e.category] || '📋'}
                           </div>
                           <div>
@@ -190,9 +190,9 @@ export default function TripOverviewPage() {
                             <p className="text-xs text-text-muted">{e.category} · {e.split_type}</p>
                           </div>
                         </div>
-                        <span className="font-mono font-bold text-text-primary">₹{(e.amount / 100).toFixed(2)}</span>
+                        <span className="font-mono font-bold text-text-primary">₹{(e.amount / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                       </div>
-                      <div className="flex items-center justify-between pt-2 border-t border-border-light text-xs text-text-muted">
+                      <div className="flex items-center justify-between pt-1.5 border-t border-border-light text-xs text-text-muted">
                         <span>Paid by {e.paid_by === user?._id ? 'You' : members.find(m => m.user._id === e.paid_by)?.user?.full_name || 'Someone'}</span>
                         <span>{e.created_at ? new Date(e.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }) : e.date ? new Date(e.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' }) : ''}</span>
                       </div>
@@ -203,71 +203,71 @@ export default function TripOverviewPage() {
             )}
           </div>
         )
-      case 'budget':
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-text-muted">Budget overview and analytics</p>
-              <Link to={`/trips/${tripId}/budget`} className="text-sm font-semibold text-accent-blue hover:underline">
-                Full Analytics →
-              </Link>
-            </div>
-            {budgetHealth?.budget ? (
-              <div className="card">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <div className={`text-xl font-bold ${
-                      budgetHealth.health === 'over_budget' ? 'text-accent-red' :
-                      budgetHealth.health === 'at_budget' ? 'text-accent-amber' :
-                      budgetHealth.health === 'near_limit' ? 'text-accent-amber' : 'text-accent-green'
-                    }`}>
-                      {budgetHealth.health === 'over_budget' ? 'Over Budget' :
-                       budgetHealth.health === 'at_budget' ? 'Budget Reached' :
-                       budgetHealth.health === 'near_limit' ? 'Near Limit' : 'Under Budget'}
+        case 'budget':
+          return (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm text-text-muted">Budget overview and analytics</p>
+                <Link to={`/trips/${tripId}/budget`} className="text-sm font-semibold text-accent-blue hover:underline">
+                  Full Analytics →
+                </Link>
+              </div>
+              {budgetHealth?.budget ? (
+                <div className="card">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className={`text-lg font-bold ${
+                        budgetHealth.health === 'over_budget' ? 'text-accent-red' :
+                        budgetHealth.health === 'at_budget' ? 'text-accent-amber' :
+                        budgetHealth.health === 'near_limit' ? 'text-accent-amber' : 'text-accent-green'
+                      }`}>
+                        {budgetHealth.health === 'over_budget' ? 'Over Budget' :
+                        budgetHealth.health === 'at_budget' ? 'Budget Reached' :
+                        budgetHealth.health === 'near_limit' ? 'Near Limit' : 'Under Budget'}
+                      </div>
+                      <p className="text-sm text-text-muted">
+                        Spent <span className="font-mono font-bold text-text-primary">₹{(budgetHealth.total_spent / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span> of <span className="font-mono font-bold text-text-primary">₹{Math.round(budgetHealth.total_budget / 100).toLocaleString('en-IN')}</span>
+                      </p>
                     </div>
-                    <p className="text-sm text-text-muted">
-                      Spent <span className="font-mono font-bold text-text-primary">₹{(budgetHealth.total_spent / 100).toFixed(2)}</span> of <span className="font-mono font-bold text-text-primary">₹{Math.round(budgetHealth.total_budget / 100)}</span>
-                    </p>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-xs font-mono font-bold text-text-muted">
-                      <span>Usage</span>
-                      <span>{budgetHealth.percentage_used}%</span>
-                    </div>
-                    <div className="w-full bg-primary-lighter rounded-full h-3 border border-border-light overflow-hidden">
-                      <div className={`h-full rounded-full transition-all duration-700 ${
-                        budgetHealth.health === 'over_budget' ? 'bg-accent-red' :
-                        budgetHealth.health === 'at_budget' ? 'bg-accent-amber' :
-                        budgetHealth.health === 'near_limit' ? 'bg-accent-amber' : 'bg-accent-green'
-                      }`} style={{ width: `${Math.min(budgetHealth.percentage_used, 100)}%` }} />
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs font-mono font-bold text-text-muted">
+                        <span>Usage</span>
+                        <span>{budgetHealth.percentage_used}%</span>
+                      </div>
+                      <div className="w-full bg-primary-lighter rounded-full h-3 border border-border-light overflow-hidden">
+                        <div className={`h-full rounded-full transition-all duration-700 ${
+                          budgetHealth.health === 'over_budget' ? 'bg-accent-red' :
+                          budgetHealth.health === 'at_budget' ? 'bg-accent-amber' :
+                          budgetHealth.health === 'near_limit' ? 'bg-accent-amber' : 'bg-accent-green'
+                        }`} style={{ width: `${Math.min(budgetHealth.percentage_used, 100)}%` }} />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="card text-center py-8 lg:py-12">
-                <div className="w-14 h-14 rounded-2xl bg-accent-amber/10 flex items-center justify-center mx-auto mb-3 text-2xl">📊</div>
-                <p className="text-text-muted font-medium mb-4">No budget configured yet</p>
-                <Link to={`/trips/${tripId}/budget`} className="btn-primary text-sm">Set Budget</Link>
-              </div>
-            )}
-          </div>
-        )
-      case 'members':
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
+              ) : (
+                <div className="card text-center py-6 lg:py-8">
+                  <div className="w-12 h-12 rounded-2xl bg-accent-amber/10 flex items-center justify-center mx-auto mb-2 text-2xl">📊</div>
+                  <p className="text-text-muted font-medium mb-3">No budget configured yet</p>
+                  <Link to={`/trips/${tripId}/budget`} className="btn-primary text-sm">Set Budget</Link>
+                </div>
+              )}
+            </div>
+          )
+        case 'members':
+          return (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between mb-3">
               <p className="text-sm text-text-muted">{members.length} member{members.length !== 1 ? 's' : ''} in this trip</p>
               <button onClick={() => setShowInvite(true)} className="text-sm font-semibold text-accent-blue hover:underline">
                 Invite Code →
               </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {members.map((m) => (
-                <div key={m.user._id} className="card flex items-center gap-4 p-5">
-                  <Avatar user={m.user} size="lg" bg="from-accent-blue to-accent-purple" />
+                <div key={m.user._id} className="card flex items-center gap-3 p-3">
+                  <Avatar user={m.user} size="md" bg="from-accent-blue to-accent-purple" />
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-text-primary truncate">{m.user.full_name}</p>
+                    <p className="font-semibold text-text-primary truncate text-sm">{m.user.full_name}</p>
                     <p className="text-xs text-text-muted truncate">@{m.user.username}</p>
                   </div>
                   <span className={`badge shrink-0 font-bold text-[10px] ${ROLE_BADGE[m.role] || ROLE_BADGE.viewer}`}>
@@ -278,24 +278,24 @@ export default function TripOverviewPage() {
             </div>
           </div>
         )
-      case 'places':
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-text-muted">{places.length} place{places.length !== 1 ? 's' : ''} explored</p>
-              <Link to={`/trips/${tripId}/places`} className="text-sm font-semibold text-accent-blue hover:underline">
-                View All →
-              </Link>
-            </div>
-            {places.length === 0 ? (
-              <div className="card text-center py-8 lg:py-12">
-                <div className="w-14 h-14 rounded-2xl bg-accent-amber/10 flex items-center justify-center mx-auto mb-3 text-2xl">📍</div>
-                <p className="text-text-muted font-medium">No places recorded yet</p>
+        case 'places':
+          return (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm text-text-muted">{places.length} place{places.length !== 1 ? 's' : ''} explored</p>
+                <Link to={`/trips/${tripId}/places`} className="text-sm font-semibold text-accent-blue hover:underline">
+                  View All →
+                </Link>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {places.map((loc) => (
-                  <div key={loc._id} className="card flex items-center gap-4 p-4">
+              {places.length === 0 ? (
+                <div className="card text-center py-6 lg:py-8">
+                  <div className="w-12 h-12 rounded-2xl bg-accent-amber/10 flex items-center justify-center mx-auto mb-2 text-2xl">📍</div>
+                  <p className="text-text-muted font-medium">No places recorded yet</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {places.map((loc) => (
+                    <div key={loc._id} className="card flex items-center gap-3 p-3">
                     <div className="w-10 h-10 rounded-xl bg-accent-blue/10 flex items-center justify-center text-accent-blue shrink-0">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -312,19 +312,19 @@ export default function TripOverviewPage() {
             )}
           </div>
         )
-      case 'settlements':
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-text-muted">
-                {settlements.i_owe?.filter(s => s.status === 'pending').length > 0 ? `${settlements.i_owe.filter(s => s.status === 'pending').length} pending payment${settlements.i_owe.filter(s => s.status === 'pending').length !== 1 ? 's' : ''}` : 'All settled up'}
-              </p>
-              <Link to={`/trips/${tripId}/settlements`} className="text-sm font-semibold text-accent-blue hover:underline">
-                View All →
-              </Link>
-            </div>
-            {balanceSheet.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        case 'settlements':
+          return (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm text-text-muted">
+                  {settlements.i_owe?.filter(s => s.status === 'pending').length > 0 ? `${settlements.i_owe.filter(s => s.status === 'pending').length} pending payment${settlements.i_owe.filter(s => s.status === 'pending').length !== 1 ? 's' : ''}` : 'All settled up'}
+                </p>
+                <Link to={`/trips/${tripId}/settlements`} className="text-sm font-semibold text-accent-blue hover:underline">
+                  View All →
+                </Link>
+              </div>
+              {balanceSheet.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {balanceSheet.slice(0, 6).map((entry) => {
                   const isPositive = entry.balance > 0; const isZero = entry.balance === 0
                   return (
@@ -338,7 +338,7 @@ export default function TripOverviewPage() {
                         <span className="text-sm font-medium text-text-primary truncate">{you(user?._id, entry.user_id, entry.full_name)}</span>
                       </div>
                       <span className={`font-mono text-sm font-bold shrink-0 whitespace-nowrap ${isPositive ? 'text-accent-green' : isZero ? 'text-text-muted' : 'text-accent-red'}`}>
-                        {isPositive ? '+' : ''}{isZero ? '₹0.00' : `₹${(Math.abs(entry.balance) / 100).toFixed(2)}`}
+                        {isPositive ? '+' : ''}{isZero ? '₹0' : `₹${(Math.abs(entry.balance) / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`}
                         {!isZero && (isPositive ? ' (to receive)' : ' (owes)')}
                       </span>
                     </div>
@@ -358,9 +358,9 @@ export default function TripOverviewPage() {
 
   const renderBudgetHealth = () => (
     <div className="card hover:shadow-elevated transition-shadow duration-300">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-heading text-lg text-text-primary flex items-center gap-2">
-          <svg className="w-5 h-5 text-accent-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-heading text-base text-text-primary flex items-center gap-2">
+          <svg className="w-4 h-4 text-accent-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
           Budget Health
@@ -370,14 +370,14 @@ export default function TripOverviewPage() {
         </Link>
       </div>
       {!budgetHealth.budget ? (
-        <div className="text-center py-4 lg:py-6 space-y-3">
+        <div className="text-center py-3 lg:py-4 space-y-2">
           <p className="text-sm text-text-secondary font-medium">No budget configured for this trip yet.</p>
           <Link to={`/trips/${tripId}/budget`} className="btn-primary text-xs font-semibold inline-block py-1.5 px-4 shadow-sm">Configure Budget</Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 items-center">
-          <div className="space-y-2">
-            <div className={`text-xl lg:text-2xl font-bold ${
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
+          <div className="space-y-1.5">
+            <div className={`text-lg lg:text-xl font-bold ${
               budgetHealth.health === 'over_budget' ? 'text-accent-red' :
               budgetHealth.health === 'at_budget' ? 'text-accent-amber' :
               budgetHealth.health === 'near_limit' ? 'text-accent-amber' : 'text-accent-green'
@@ -387,15 +387,15 @@ export default function TripOverviewPage() {
                budgetHealth.health === 'near_limit' ? 'Near Limit' : 'Under Budget'}
             </div>
             <p className="text-sm text-text-secondary font-medium">
-              Spent <span className="font-mono font-bold text-text-primary">₹{(budgetHealth.total_spent / 100).toFixed(2)}</span> of <span className="font-mono font-bold text-text-primary">₹{Math.round(budgetHealth.total_budget / 100)}</span>
+              Spent <span className="font-mono font-bold text-text-primary">₹{(budgetHealth.total_spent / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span> of <span className="font-mono font-bold text-text-primary">₹{Math.round(budgetHealth.total_budget / 100).toLocaleString('en-IN')}</span>
             </p>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="flex justify-between text-xs font-mono font-bold text-text-muted">
               <span>Usage</span>
               <span>{budgetHealth.percentage_used}%</span>
             </div>
-            <div className="w-full bg-primary-lighter rounded-full h-2 lg:h-3 border border-border-light overflow-hidden">
+            <div className="w-full bg-primary-lighter rounded-full h-2 border border-border-light overflow-hidden">
               <div className={`h-full rounded-full transition-all duration-500 ${
                 budgetHealth.health === 'over_budget' ? 'bg-accent-red' :
                 budgetHealth.health === 'at_budget' ? 'bg-accent-amber' :
@@ -410,28 +410,28 @@ export default function TripOverviewPage() {
 
   const renderBalanceSheet = () => (
     <div className="card">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-heading text-lg text-text-primary flex items-center gap-2">
-          <svg className="w-5 h-5 text-accent-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-heading text-base text-text-primary flex items-center gap-2">
+          <svg className="w-4 h-4 text-accent-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           Balance Sheet
         </h3>
         <Link to={`/trips/${tripId}/settlements`} className="text-xs font-semibold text-accent-blue hover:underline">Settle Up →</Link>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {balanceSheet.map((entry) => {
           const isPositive = entry.balance > 0; const isZero = entry.balance === 0
           return (
-            <div key={entry.user_id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-primary-lighter/30 border border-border/20 gap-2">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+            <div key={entry.user_id} className="flex items-center justify-between py-1.5 px-2.5 rounded-lg bg-primary-lighter/30 border border-border/20 gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
                   isPositive ? 'bg-accent-green/15 text-accent-green' : isZero ? 'bg-text-muted/10 text-text-muted' : 'bg-accent-red/15 text-accent-red'
                 }`}>{entry.full_name?.charAt(0)}</div>
                 <span className="text-sm font-medium text-text-primary truncate">{you(user?._id, entry.user_id, entry.full_name)}</span>
               </div>
-              <span className={`font-mono text-sm font-bold shrink-0 whitespace-nowrap ${isPositive ? 'text-accent-green' : isZero ? 'text-text-muted' : 'text-accent-red'}`}>
-                {isPositive ? '+' : ''}{isZero ? '₹0.00' : `₹${(Math.abs(entry.balance) / 100).toFixed(2)}`}
+              <span className={`font-mono text-xs font-bold shrink-0 whitespace-nowrap ${isPositive ? 'text-accent-green' : isZero ? 'text-text-muted' : 'text-accent-red'}`}>
+                {isPositive ? '+' : ''}{isZero ? '₹0' : `₹${(Math.abs(entry.balance) / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`}
                 {!isZero && (isPositive ? ' (to receive)' : ' (owes)')}
               </span>
             </div>
@@ -472,8 +472,8 @@ export default function TripOverviewPage() {
   const renderActivity = () => (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-heading text-lg text-text-primary flex items-center gap-2">
-          <svg className="w-5 h-5 text-accent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <h3 className="font-heading text-base text-text-primary flex items-center gap-2">
+          <svg className="w-4 h-4 text-accent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
           </svg>
           Recent Activity
@@ -483,7 +483,7 @@ export default function TripOverviewPage() {
         )}
       </div>
       {activity.length === 0 ? (
-        <div className="text-center py-6 lg:py-8">
+        <div className="text-center py-4 lg:py-6">
           <div className="w-10 h-10 rounded-xl bg-primary-lighter flex items-center justify-center mx-auto mb-2">
             <svg className="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -495,7 +495,7 @@ export default function TripOverviewPage() {
       ) : (
         <div className="relative">
           <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-border-light/60" />
-          <div className="space-y-3 max-h-[360px] lg:max-h-[520px] overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-[360px] lg:max-h-[520px] overflow-y-auto pr-1">
             {activity.slice(0, 30).map((a) => {
               const actIcon = getActivityIcon(a.description)
               return (
@@ -503,8 +503,8 @@ export default function TripOverviewPage() {
                   <div className={`absolute left-[9px] top-2 w-3 h-3 rounded-full border-2 border-surface ${actIcon.bg} z-10 flex items-center justify-center`}>
                     <div className={`w-1.5 h-1.5 rounded-full ${actIcon.text}`} />
                   </div>
-                  <div className="p-2.5 rounded-xl hover:bg-primary-lighter/40 transition-colors">
-                    <div className="flex items-start gap-2.5">
+                  <div className="p-2 rounded-xl hover:bg-primary-lighter/40 transition-colors">
+                    <div className="flex items-start gap-2">
                       <div className="relative shrink-0">
                         <div className="w-7 h-7 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700 flex items-center justify-center border border-slate-200/50 dark:border-white/10 shadow-xs">
                           {a.actor?.profile_photo_url ? (
@@ -548,7 +548,7 @@ export default function TripOverviewPage() {
 
 
   return (
-    <div className="w-full max-w-full px-4 sm:px-6 lg:px-8 space-y-6">
+    <div className="w-full max-w-full px-4 sm:px-6 lg:px-8 space-y-4">
       {/* Hero Banner */}
       <div className={`relative overflow-hidden rounded-[32px] bg-gradient-to-br ${getDestinationGradient(activeTrip.destination)} border border-border/60`}>
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />

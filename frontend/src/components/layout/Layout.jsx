@@ -17,7 +17,7 @@ export default function Layout() {
           <UnverifiedBanner />
         )}
         <Navbar />
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-8 overflow-y-auto">
+        <main className="flex-1 px-3 sm:px-5 lg:px-6 py-3 sm:py-5 overflow-y-auto">
           <Outlet />
         </main>
       </div>

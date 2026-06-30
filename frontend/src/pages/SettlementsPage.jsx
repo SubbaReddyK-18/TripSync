@@ -94,27 +94,27 @@ export default function SettlementsPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4 mb-6 lg:mb-8">
-        <div className="card border-accent-red/20 !p-4 lg:!p-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4 mb-4 lg:mb-6">
+        <div className="card border-accent-red/20 !p-3 lg:!p-4">
           <div className="flex items-center gap-2 lg:gap-3">
             <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-accent-red/10 flex items-center justify-center shrink-0">
               <svg className="w-4 h-4 lg:w-5 lg:h-5 text-accent-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>
             </div>
             <div>
               <p className="text-xs text-text-muted font-medium">You Owe</p>
-              <p className="text-lg lg:text-xl font-mono font-bold text-accent-red">₹{(totalOwed / 100).toFixed(2)}</p>
+              <p className="text-lg lg:text-xl font-mono font-bold text-accent-red">₹{(totalOwed / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
               <p className="text-[11px] lg:text-xs text-text-muted">{data.i_owe.filter(s => s.status === 'pending').length} pending</p>
             </div>
           </div>
         </div>
-        <div className="card border-accent-green/20 !p-4 lg:!p-5">
+        <div className="card border-accent-green/20 !p-3 lg:!p-4">
           <div className="flex items-center gap-2 lg:gap-3">
             <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-xl bg-accent-green/10 flex items-center justify-center shrink-0">
               <svg className="w-4 h-4 lg:w-5 lg:h-5 text-accent-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             </div>
             <div>
               <p className="text-xs text-text-muted font-medium">Owed to You</p>
-              <p className="text-lg lg:text-xl font-mono font-bold text-accent-green">₹{(totalToReceive / 100).toFixed(2)}</p>
+              <p className="text-lg lg:text-xl font-mono font-bold text-accent-green">₹{(totalToReceive / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
               <p className="text-[11px] lg:text-xs text-text-muted">{data.owed_to_me.filter(s => s.status === 'pending').length} pending</p>
             </div>
           </div>
@@ -122,26 +122,26 @@ export default function SettlementsPage() {
       </div>
 
       {/* Pending Settlements */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4 mb-4 lg:mb-6">
         {renderSection('You Owe', 'owe', 'text-accent-red', 'bg-accent-red/5', 'border-accent-red/10', data.i_owe, data.owed_to_me)}
         {renderSection('Owed to You', 'owed', 'text-accent-green', 'bg-accent-green/5', 'border-accent-green/10', data.owed_to_me, data.i_owe)}
       </div>
 
       {/* All Settlements Timeline */}
-      <div className="card !p-4 lg:!p-6">
-        <h3 className="font-heading text-base text-text-primary mb-4 flex items-center gap-2">
+      <div className="card !p-3 lg:!p-4">
+        <h3 className="font-heading text-sm text-text-primary mb-3 flex items-center gap-2">
           <svg className="w-4 h-4 text-accent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
           All Settlements
         </h3>
         {data.all.length === 0 ? (
-          <div className="text-center py-4 lg:py-6">
-            <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-accent-green/10 flex items-center justify-center mx-auto mb-2 lg:mb-3 text-xl lg:text-2xl">💰</div>
+          <div className="text-center py-3 lg:py-4">
+            <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-accent-green/10 flex items-center justify-center mx-auto mb-1.5 lg:mb-2 text-xl lg:text-2xl">💰</div>
             <p className="text-text-muted font-medium text-sm">No settlements yet</p>
           </div>
         ) : (
           <div className="relative">
             <div className="absolute left-[19px] top-2 bottom-2 w-0.5 bg-border-light" />
-            <div className="space-y-3 lg:space-y-4">
+            <div className="space-y-2 lg:space-y-3">
               {data.all.map((s) => {
                 const isPending = s.status === 'pending'
                 const fromLabel = you(user?._id, s.from_user_id, userMap[s.from_user_id] || s.from_user_id.slice(-6))
@@ -175,7 +175,7 @@ export default function SettlementsPage() {
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
                           <div className="text-right">
-                            <p className="font-mono font-bold text-text-primary">₹{(s.amount / 100).toFixed(2)}</p>
+                            <p className="font-mono font-bold text-text-primary">₹{(s.amount / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
                             <span className={`text-[10px] font-semibold ${isPending ? 'text-accent-amber' : 'text-accent-green'}`}>
                               {isPending ? 'Pending' : 'Settled'}
                             </span>
@@ -252,7 +252,7 @@ export default function SettlementsPage() {
               <span className="font-semibold text-text-primary truncate">{you(user?._id, otherId, userMap[otherId] || 'Unknown')}</span>
             </div>
             <p className={`font-mono text-lg lg:text-xl font-bold ${isPending ? 'text-text-primary' : 'text-accent-green'}`}>
-              {statusIcon} ₹{(s.amount / 100).toFixed(2)}
+              {statusIcon} ₹{(s.amount / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
             </p>
           </div>
           <div className="flex flex-col items-end gap-1 shrink-0">

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { register } from '../api/auth'
 import useAuthStore from '../stores/authStore'
 import useUiStore from '../stores/uiStore'
-import { motion } from 'framer-motion'
+
 import toast from 'react-hot-toast'
 import AnimatedBackground from '../components/auth/AnimatedBackground'
 import HeroSection, { FEATURES } from '../components/auth/HeroSection'
@@ -75,10 +75,8 @@ export default function RegisterPage() {
 
       {/* Theme Toggle */}
       <div className="fixed top-6 right-6 z-50">
-        <motion.button
+        <button
           onClick={toggleTheme}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
           className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
             isDark
               ? 'bg-white/[0.06] border border-white/[0.08] text-yellow-400 hover:bg-white/[0.1]'
@@ -95,7 +93,7 @@ export default function RegisterPage() {
               <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
             </svg>
           )}
-        </motion.button>
+        </button>
       </div>
 
       {/* Split Layout */}
@@ -111,11 +109,8 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <motion.form
+          <form
             onSubmit={handleSubmit}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
             className="space-y-6"
           >
             <div className="mb-6">
@@ -286,11 +281,9 @@ export default function RegisterPage() {
               </button>
             </div>
 
-            <motion.button
+            <button
               type="submit"
               disabled={loading || !systemConfig.allowRegistrations}
-              whileHover={!loading && systemConfig.allowRegistrations ? { scale: 1.01 } : {}}
-              whileTap={!loading && systemConfig.allowRegistrations ? { scale: 0.99 } : {}}
               className={`w-full font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center text-sm ${
                 isDark
                   ? 'bg-gradient-to-r from-accent-blue to-accent-indigo hover:from-blue-400 hover:to-indigo-400 text-white shadow-lg shadow-accent-blue/20'
@@ -310,7 +303,7 @@ export default function RegisterPage() {
               ) : (
                 'Create Account'
               )}
-            </motion.button>
+            </button>
 
             <p className={`text-center text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               Already have an account?{' '}
@@ -320,7 +313,7 @@ export default function RegisterPage() {
                 Sign In
               </Link>
             </p>
-          </motion.form>
+          </form>
         </AuthCard>
       </div>
 

@@ -29,5 +29,8 @@ instance/
 .env
 .env*.local
 
+# Admin password reset script (contains sensitive local config)
+backend/reset_admin_password.py
+
 # Uploaded files (dev/test)
 backend/static/uploads/

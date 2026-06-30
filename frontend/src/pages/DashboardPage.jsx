@@ -97,13 +97,10 @@ const ADMIN_LABELS = {
 
 function StatCard({ icon, value, label, trend, color, isDark }) {
   return (
-    <motion.div
-      whileHover={{ y: -6, scale: 1.02 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className={`relative overflow-hidden rounded-2xl p-3 lg:p-4 transition-all duration-300 ${isDark
+    <div className={`relative overflow-hidden rounded-2xl p-3 lg:p-4 transition-all duration-300 h-full ${isDark
         ? 'bg-[#111827] border border-white/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.2)]'
         : 'bg-white border border-slate-200/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
-        }`}
+      }`}
     >
       <div className="flex items-start justify-between mb-1 lg:mb-2">
         <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isDark ? `bg-${color}/10` : `bg-${color}/5`
@@ -125,7 +122,7 @@ function StatCard({ icon, value, label, trend, color, isDark }) {
         {value}
       </p>
       <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{label}</p>
-    </motion.div>
+    </div>
   )
 }
 
@@ -1138,14 +1135,24 @@ export default function DashboardPage() {
 
       {/* ====== ROW 2: STATISTICS CARDS ====== */}
       {!loading && (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          <StatCard icon="🗺️" value={overview?.activity_count || 0} label={KPI_LABELS[range]?.[0] || 'Activities'} trend={null} color="#6366F1" isDark={isDark} />
-          <StatCard icon="💳" value={`₹${totalSpent}`} label={KPI_LABELS[range]?.[1] || 'Total Expenses'} trend={null} color="#3B82F6" isDark={isDark} />
-          <StatCard icon="👥" value={membersParticipated} label={KPI_LABELS[range]?.[2] || 'Active Members'} trend={null} color="#8B5CF6" isDark={isDark} />
-          <StatCard icon="📸" value={overview?.expense_count || 0} label={KPI_LABELS[range]?.[3] || 'Expenses Logged'} trend={null} color="#10B981" isDark={isDark} />
-          <StatCard icon="🤝" value={overview?.pending_settlements || 0} label={KPI_LABELS[range]?.[4] || 'Pending Settlements'} trend={overview?.pending_settlements > 0 ? `+${overview.pending_settlements}` : '0'} color="#F59E0B" isDark={isDark} />
-          {(range === 'year' || range === 'all') && (
-            <StatCard icon="💰" value={`₹${totalBudgetVal}`} label={KPI_LABELS[range]?.[5] || 'Total Budget'} trend={null} color="#06B6D4" isDark={isDark} />
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard icon="🗺️" value={overview?.activity_count || 0} label={KPI_LABELS[range]?.[0] || 'Activities'} trend={null} color="#6366F1" isDark={isDark} />
+            <StatCard icon="💳" value={`₹${totalSpent}`} label={KPI_LABELS[range]?.[1] || 'Total Expenses'} trend={null} color="#3B82F6" isDark={isDark} />
+            <StatCard icon="👥" value={membersParticipated} label={KPI_LABELS[range]?.[2] || 'Active Members'} trend={null} color="#8B5CF6" isDark={isDark} />
+            <StatCard icon="📸" value={overview?.expense_count || 0} label={KPI_LABELS[range]?.[3] || 'Expenses Logged'} trend={null} color="#10B981" isDark={isDark} />
+          </div>
+          {(range === 'year' || range === 'all') ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <StatCard icon="🤝" value={overview?.pending_settlements || 0} label={KPI_LABELS[range]?.[4] || 'Pending Settlements'} trend={overview?.pending_settlements > 0 ? `+${overview.pending_settlements}` : '0'} color="#F59E0B" isDark={isDark} />
+              <StatCard icon="💰" value={`₹${totalBudgetVal}`} label={KPI_LABELS[range]?.[5] || 'Total Budget'} trend={null} color="#06B6D4" isDark={isDark} />
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <div className="w-full sm:w-1/2">
+                <StatCard icon="🤝" value={overview?.pending_settlements || 0} label={KPI_LABELS[range]?.[4] || 'Pending Settlements'} trend={overview?.pending_settlements > 0 ? `+${overview.pending_settlements}` : '0'} color="#F59E0B" isDark={isDark} />
+              </div>
+            </div>
           )}
         </div>
       )}

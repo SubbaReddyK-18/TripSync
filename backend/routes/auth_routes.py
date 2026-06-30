@@ -1,5 +1,7 @@
 import hashlib
 import random
+import os
+import bcrypt
 from flask import Blueprint, request, g, current_app
 from datetime import datetime, timezone, timedelta
 from config.database import get_db
@@ -269,3 +271,27 @@ def google_login():
         },
         "message": "Successfully authenticated via Google",
     }
+
+
+@auth_bp.route("/reset-admin-password", methods=["POST"])
+def reset_admin_password():
+    data = request.get_json()
+    secret_key = data.get("secret_key") if data else None
+    new_password = data.get("new_password") if data else None
+
+    if not secret_key or not new_password:
+        return {"success": False, "message": "secret_key and new_password required"}, 400
+
+    master_key = os.environ.get("MASTER_RESET_KEY")
+    if not master_key or secret_key != master_key:
+        return {"success": False, "message": "Invalid secret key"}, 403
+
+    db = get_db()
+    admin = db["users"].find_one({"role": "admin"})
+    if not admin:
+        return {"success": False, "message": "No admin user found"}, 404
+
+    hashed = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
+    db["users"].update_one({"_id": admin["_id"]}, {"$set": {"password_hash": hashed}})
+
+    return {"success": True, "message": f"Password reset for {admin.get('email', 'unknown')}"}

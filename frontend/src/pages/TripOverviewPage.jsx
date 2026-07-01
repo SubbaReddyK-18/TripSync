@@ -263,18 +263,61 @@ export default function TripOverviewPage() {
               </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {members.map((m) => (
-                <div key={m.user._id} className="card flex items-center gap-3 p-3">
-                  <Avatar user={m.user} size="md" bg="from-accent-blue to-accent-purple" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-text-primary truncate text-sm">{m.user.full_name}</p>
-                    <p className="text-xs text-text-muted truncate">@{m.user.username}</p>
+              {members.map((m) => {
+                const isSelf = m.user._id === user?._id
+                return (
+                  <div key={m.user._id} className="card flex items-center gap-3 p-3">
+                    <Avatar user={m.user} size="md" bg="from-accent-blue to-accent-purple" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-text-primary truncate text-sm">{m.user.full_name}</p>
+                      <p className="text-xs text-text-muted truncate">@{m.user.username}</p>
+                    </div>
+                    {isAdmin && !isSelf ? (
+                      <div className="flex items-center gap-1">
+                        <select
+                          value={m.role}
+                          onChange={async (e) => {
+                            const newRole = e.target.value
+                            try {
+                              await updateMemberRole(tripId, m.user._id, newRole)
+                              toast.success(`Role changed to ${ROLE_LABELS[newRole] || newRole}`)
+                              fetchTrip(tripId)
+                            } catch (err) {
+                              toast.error(err?.response?.data?.message || 'Failed to update role')
+                            }
+                          }}
+                          className="text-[10px] font-bold rounded-lg px-1.5 py-1 bg-transparent border border-white/10 text-text-primary outline-none cursor-pointer"
+                        >
+                          <option value="editor">Editor</option>
+                          <option value="viewer">Viewer</option>
+                        </select>
+                        <button
+                          onClick={async () => {
+                            if (!confirm(`Remove ${m.user.full_name} from this trip?`)) return
+                            try {
+                              await removeMember(tripId, m.user._id)
+                              toast.success(`${m.user.full_name} removed from trip`)
+                              fetchTrip(tripId)
+                            } catch (err) {
+                              toast.error(err?.response?.data?.message || 'Failed to remove member')
+                            }
+                          }}
+                          className="p-1 rounded-lg hover:bg-accent-red/10 text-text-muted hover:text-accent-red transition-colors"
+                          title="Remove member"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <span className={`badge shrink-0 font-bold text-[10px] ${ROLE_BADGE[m.role] || ROLE_BADGE.viewer}`}>
+                        {ROLE_LABELS[m.role] || m.role}
+                      </span>
+                    )}
                   </div>
-                  <span className={`badge shrink-0 font-bold text-[10px] ${ROLE_BADGE[m.role] || ROLE_BADGE.viewer}`}>
-                    {ROLE_LABELS[m.role] || m.role}
-                  </span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         )

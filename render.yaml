@@ -17,7 +17,7 @@ services:
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn -w 2 -k gthread --threads 4 -b 0.0.0.0:$PORT --timeout 120 --preload --max-requests 1000 app:app
-    healthCheckPath: /api/health
+    healthCheckPath: /api/v1/health
     envVars:
       - key: FLASK_ENV
         sync: false
@@ -38,6 +38,8 @@ services:
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: MASTER_RESET_KEY
         sync: false
       - key: MAIL_FROM
         sync: false

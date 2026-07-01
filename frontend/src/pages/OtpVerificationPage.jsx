@@ -166,7 +166,7 @@ export default function OtpVerificationPage() {
 
   return (
     <div className={`relative min-h-screen font-body overflow-hidden ${isDark ? 'text-white' : 'text-slate-900'}`}>
-      <AnimatedBackground isDark={isDark} />
+      <div className="hidden lg:block"><AnimatedBackground isDark={isDark} /></div>
 
       {/* Theme Toggle */}
       <div className="fixed top-6 right-6 z-50">

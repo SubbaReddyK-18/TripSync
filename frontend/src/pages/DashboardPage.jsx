@@ -1135,25 +1135,21 @@ export default function DashboardPage() {
 
       {/* ====== ROW 2: STATISTICS CARDS ====== */}
       {!loading && (
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <StatCard icon="🗺️" value={overview?.activity_count || 0} label={KPI_LABELS[range]?.[0] || 'Activities'} trend={null} color="#6366F1" isDark={isDark} />
-            <StatCard icon="💳" value={`₹${totalSpent}`} label={KPI_LABELS[range]?.[1] || 'Total Expenses'} trend={null} color="#3B82F6" isDark={isDark} />
-            <StatCard icon="👥" value={membersParticipated} label={KPI_LABELS[range]?.[2] || 'Active Members'} trend={null} color="#8B5CF6" isDark={isDark} />
-            <StatCard icon="📸" value={overview?.expense_count || 0} label={KPI_LABELS[range]?.[3] || 'Expenses Logged'} trend={null} color="#10B981" isDark={isDark} />
-          </div>
+        <div className={`grid grid-cols-2 gap-3 ${(range === 'year' || range === 'all') ? 'lg:grid-cols-6' : 'lg:grid-cols-5'}`}>
+          <StatCard icon="🗺️" value={overview?.activity_count || 0} label={KPI_LABELS[range]?.[0] || 'Activities'} trend={null} color="#6366F1" isDark={isDark} />
+          <StatCard icon="💳" value={`₹${totalSpent}`} label={KPI_LABELS[range]?.[1] || 'Total Expenses'} trend={null} color="#3B82F6" isDark={isDark} />
+          <StatCard icon="👥" value={membersParticipated} label={KPI_LABELS[range]?.[2] || 'Active Members'} trend={null} color="#8B5CF6" isDark={isDark} />
+          <StatCard icon="📸" value={overview?.expense_count || 0} label={KPI_LABELS[range]?.[3] || 'Expenses Logged'} trend={null} color="#10B981" isDark={isDark} />
           {(range === 'year' || range === 'all') ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <StatCard icon="🤝" value={overview?.pending_settlements || 0} label={KPI_LABELS[range]?.[4] || 'Pending Settlements'} trend={overview?.pending_settlements > 0 ? `+${overview.pending_settlements}` : '0'} color="#F59E0B" isDark={isDark} />
-              <StatCard icon="💰" value={`₹${totalBudgetVal}`} label={KPI_LABELS[range]?.[5] || 'Total Budget'} trend={null} color="#06B6D4" isDark={isDark} />
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <div className="w-full sm:w-1/2">
+            <StatCard icon="💰" value={`₹${totalBudgetVal}`} label={KPI_LABELS[range]?.[5] || 'Total Budget'} trend={null} color="#06B6D4" isDark={isDark} />
+          ) : null}
+          <div className="col-span-2 lg:col-span-1">
+            <div className="flex justify-center lg:block">
+              <div className="w-1/2 lg:w-full">
                 <StatCard icon="🤝" value={overview?.pending_settlements || 0} label={KPI_LABELS[range]?.[4] || 'Pending Settlements'} trend={overview?.pending_settlements > 0 ? `+${overview.pending_settlements}` : '0'} color="#F59E0B" isDark={isDark} />
               </div>
             </div>
-          )}
+          </div>
         </div>
       )}
 

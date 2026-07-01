@@ -1,7 +1,6 @@
 import hashlib
 import random
 import os
-import bcrypt
 from flask import Blueprint, request, g, current_app
 from datetime import datetime, timezone, timedelta
 from config.database import get_db
@@ -273,25 +272,73 @@ def google_login():
     }
 
 
-@auth_bp.route("/reset-admin-password", methods=["POST"])
-def reset_admin_password():
+@auth_bp.route("/register-admin", methods=["POST"])
+@rate_limit(3, 60)
+def register_admin():
     data = request.get_json()
-    secret_key = data.get("secret_key") if data else None
-    new_password = data.get("new_password") if data else None
+    if not data:
+        return {"success": False, "error": {"code": "INVALID_JSON", "message": "Request body must be valid JSON"}}, 400
 
-    if not secret_key or not new_password:
-        return {"success": False, "message": "secret_key and new_password required"}, 400
+    email = data.get("email", "").lower()
+    password = data.get("password", "")
+    setup_key = data.get("setup_key", "")
 
-    master_key = os.environ.get("MASTER_RESET_KEY")
-    if not master_key or secret_key != master_key:
-        return {"success": False, "message": "Invalid secret key"}, 403
+    if not email or not password or not setup_key:
+        return {"success": False, "error": {"code": "MISSING_FIELDS", "message": "email, password, and setup_key are required"}}, 400
+
+    expected_key = os.environ.get("SETUP_KEY")
+    if not expected_key or setup_key != expected_key:
+        return {"success": False, "error": {"code": "INVALID_SETUP_KEY", "message": "Invalid setup key"}}, 403
+
+    from services.auth_service import hash_password
+    from marshmallow import ValidationError
+
+    schema = RegisterSchema()
+    try:
+        validated = schema.load({"full_name": "Admin", "username": "admin", "email": email, "password": password})
+    except ValidationError as e:
+        return {"success": False, "error": {"code": "VALIDATION_ERROR", "message": str(e.messages)}}, 422
 
     db = get_db()
-    admin = db["users"].find_one({"role": "admin"})
-    if not admin:
-        return {"success": False, "message": "No admin user found"}, 404
+    existing = db["users"].find_one({"email": validated["email"]})
+    if existing:
+        return {"success": False, "error": {"code": "EMAIL_EXISTS", "message": "Email already registered"}}, 409
 
-    hashed = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
-    db["users"].update_one({"_id": admin["_id"]}, {"$set": {"password_hash": hashed}})
+    now = datetime.now(timezone.utc)
+    user = {
+        "email": validated["email"],
+        "full_name": "Admin",
+        "username": "admin",
+        "password_hash": hash_password(validated["password"]),
+        "role": "admin",
+        "is_active": True,
+        "is_verified": True,
+        "created_at": now,
+        "last_login": now,
+        "lastActive": now,
+        "bio": "",
+        "profile_photo_url": "",
+        "dob": "",
+    }
+    result = db["users"].insert_one(user)
+    user_id = str(result.inserted_id)
 
-    return {"success": True, "message": f"Password reset for {admin.get('email', 'unknown')}"}
+    from services.auth_service import create_access_token, create_refresh_token
+    access_token, jti = create_access_token(user_id)
+    refresh_token, _ = create_refresh_token(user_id)
+
+    return {
+        "success": True,
+        "data": {
+            "user": {
+                "_id": user_id,
+                "email": validated["email"],
+                "full_name": "Admin",
+                "username": "admin",
+                "role": "admin",
+            },
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        },
+        "message": "Admin account created successfully",
+    }, 201

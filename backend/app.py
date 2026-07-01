@@ -99,11 +99,6 @@ def _register_blueprints(app):
 
 def _init_services(app):
     db = init_db(app.config["MONGO_URI"])
-    # Automatic master admin promotion migration
-    db["users"].update_many(
-        {"email": {"$regex": "vu241fa04b47", "$options": "i"}},
-        {"$set": {"role": "admin"}}
-    )
     # Backfill is_verified for users created before email verification was added
     db["users"].update_many(
         {"is_verified": {"$exists": False}},

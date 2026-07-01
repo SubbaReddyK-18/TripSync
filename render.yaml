@@ -39,7 +39,7 @@ services:
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
-      - key: MASTER_RESET_KEY
+      - key: SETUP_KEY
         sync: false
       - key: MAIL_FROM
         sync: false
